@@ -1,8 +1,7 @@
-import { DomainError, ValidationError } from '@foundation/app-core/errors.js';
-import type { RegistrationData } from '../contracts.js';
-import type { User } from '../domain/index.js';
-import { Email, User as UserEntity, type UserId } from '../domain/index.js';
-import { UserPolicy } from '../domain/policies/UserPolicy.js';
+import { DomainError } from '@foundation/app-core/errors.js';
+import type { User } from '../../domain/index.js';
+import { Email, User as UserEntity, type UserId } from '../../domain/index.js';
+import { UserPolicy } from '../../domain/policies/UserPolicy.js';
 import type { IAuditLogger, IPasswordHasher, IUserRepository } from '../ports.js';
 
 export interface RegisterInput {
@@ -42,7 +41,7 @@ export class RegisterUserUseCase {
     const passwordHash = await this.passwordHasher.hash(input.password);
 
     const user = UserEntity.create({
-      id: crypto.randomUUID() as UserId,
+      id: crypto.randomUUID() as unknown as UserId,
       email: email.raw,
       passwordHash,
       firstName: input.firstName,

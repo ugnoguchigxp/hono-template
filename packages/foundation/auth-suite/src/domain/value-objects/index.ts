@@ -32,6 +32,10 @@ export class Email {
   private readonly value: EmailType;
 
   constructor(value: EmailType) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      throw new Error('Invalid email format');
+    }
     this.value = value;
   }
 

@@ -2,6 +2,8 @@ import {
   DrizzleAuditLogger,
   DrizzleSessionStore,
   DrizzleUserRepository,
+  DrizzleThreadRepository,
+  DrizzleCommentRepository,
 } from '@adapters/db-drizzle/index.js';
 import { createHonoApp } from '@adapters/http-hono/index.js';
 import { Config } from '@foundation/app-core/config.js';
@@ -19,6 +21,12 @@ import {
 } from '@foundation/auth-suite/infrastructure/index.js';
 import { createDBClient } from '@foundation/db/client.js';
 import { createTransactionManager } from '@foundation/db/transaction/index.js';
+import {
+  CreateThreadUseCase,
+  GetThreadDetailUseCase,
+  ListThreadsUseCase,
+  PostCommentUseCase,
+} from '@domains/bbs';
 
 // Initialize configuration
 const config = new Config();
@@ -49,9 +57,6 @@ container.registerSingleton(DIKeys.TransactionManager, () =>
   createTransactionManager(dbClient.getDrizzleDB())
 );
 
-// Make db client available globally for health checks
-(globalThis as any).dbClient = dbClient;
-
 // Initialize auth infrastructure
 const passwordHasher = createPasswordHasher();
 const tokenGenerator = createTokenGenerator();
@@ -67,7 +72,8 @@ const loginUseCase = new LoginUseCase(
   sessionStore,
   passwordHasher,
   tokenGenerator,
-  auditLogger
+  auditLogger,
+  config.get('SESSION_TTL')
 );
 
 const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, auditLogger);
@@ -75,10 +81,20 @@ const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHash
 const validateSessionUseCase = new ValidateSessionUseCase(
   sessionStore,
   userRepository,
-  auditLogger
+  tokenGenerator
 );
 
 const logoutUseCase = new LogoutUseCase(sessionStore, auditLogger);
+
+// Initialize BBS repositories
+const threadRepository = new DrizzleThreadRepository(dbClient);
+const commentRepository = new DrizzleCommentRepository(dbClient);
+
+// Initialize BBS use cases
+const listThreadsUseCase = new ListThreadsUseCase(threadRepository);
+const createThreadUseCase = new CreateThreadUseCase(threadRepository);
+const getThreadDetailUseCase = new GetThreadDetailUseCase(threadRepository, commentRepository);
+const postCommentUseCase = new PostCommentUseCase(threadRepository, commentRepository);
 
 // Create Hono app
 const app = createHonoApp({
@@ -88,6 +104,10 @@ const app = createHonoApp({
   registerUserUseCase,
   validateSessionUseCase,
   logoutUseCase,
+  listThreadsUseCase,
+  createThreadUseCase,
+  getThreadDetailUseCase,
+  postCommentUseCase,
 });
 
 // Start server

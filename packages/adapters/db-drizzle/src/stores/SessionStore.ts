@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import type { ISessionStore } from '@foundation/auth-suite/application/ports.js';
 import { Session as SessionEntity } from '@foundation/auth-suite/domain/entities/Session.js';
 import type { DBClient } from '@foundation/db/types.js';
@@ -7,9 +8,14 @@ import { sessions } from '../schema/index.js';
 export class DrizzleSessionStore implements ISessionStore {
   constructor(private readonly db: DBClient) {}
 
+  private hashToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
   async findByToken(token: string): Promise<SessionEntity | null> {
+    const hashedToken = this.hashToken(token);
     const result = await this.db.query.sessions.findFirst({
-      where: eq(sessions.token, token),
+      where: eq(sessions.token, hashedToken),
     });
 
     if (!result) {
@@ -18,7 +24,7 @@ export class DrizzleSessionStore implements ISessionStore {
 
     return SessionEntity.reconstruct({
       id: result.id,
-      token: result.token,
+      token: token, // We keep the raw token in the entity for the application's use
       userId: result.userId,
       expiresAt: result.expiresAt,
       isActive: result.isActive,
@@ -29,12 +35,13 @@ export class DrizzleSessionStore implements ISessionStore {
 
   async save(session: SessionEntity): Promise<SessionEntity> {
     const sessionData = session.getData();
+    const hashedToken = this.hashToken(sessionData.token);
 
     await this.db
       .insert(sessions)
       .values({
         id: sessionData.id,
-        token: sessionData.token,
+        token: hashedToken,
         userId: sessionData.userId,
         expiresAt: sessionData.expiresAt,
         isActive: sessionData.isActive,
@@ -44,7 +51,7 @@ export class DrizzleSessionStore implements ISessionStore {
       .onConflictDoUpdate({
         target: sessions.id,
         set: {
-          token: sessionData.token,
+          token: hashedToken,
           userId: sessionData.userId,
           expiresAt: sessionData.expiresAt,
           isActive: sessionData.isActive,
@@ -57,11 +64,12 @@ export class DrizzleSessionStore implements ISessionStore {
 
   async update(session: SessionEntity): Promise<SessionEntity> {
     const sessionData = session.getData();
+    const hashedToken = this.hashToken(sessionData.token);
 
     await this.db
       .update(sessions)
       .set({
-        token: sessionData.token,
+        token: hashedToken,
         userId: sessionData.userId,
         expiresAt: sessionData.expiresAt,
         isActive: sessionData.isActive,
@@ -73,7 +81,8 @@ export class DrizzleSessionStore implements ISessionStore {
   }
 
   async delete(token: string): Promise<void> {
-    await this.db.delete(sessions).where(eq(sessions.token, token));
+    const hashedToken = this.hashToken(token);
+    await this.db.delete(sessions).where(eq(sessions.token, hashedToken));
   }
 
   async deleteByUserId(userId: string): Promise<void> {

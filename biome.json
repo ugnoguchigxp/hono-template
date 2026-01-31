@@ -56,7 +56,8 @@
       "**/dist/**",
       "**/migrations/**",
       "**/.git/**",
-      "**/coverage/**"
+      "**/coverage/**",
+      "**/*.test.ts"
     ]
   }
 }

@@ -17,7 +17,7 @@ export class DrizzleAuditLogger implements IAuditLogger {
         resource: 'AUTH',
         ipAddress,
         userAgent,
-        metadata: JSON.stringify({ timestamp: new Date().toISOString() }),
+        details: { timestamp: new Date().toISOString() },
       });
 
       this.logger.info('User login audit log created', {
@@ -42,7 +42,7 @@ export class DrizzleAuditLogger implements IAuditLogger {
         resource: 'AUTH',
         ipAddress,
         userAgent,
-        metadata: JSON.stringify({ timestamp: new Date().toISOString() }),
+        details: { timestamp: new Date().toISOString() },
       });
 
       this.logger.info('User logout audit log created', {
@@ -66,7 +66,7 @@ export class DrizzleAuditLogger implements IAuditLogger {
         resource: 'AUTH',
         ipAddress,
         userAgent,
-        metadata: JSON.stringify({ timestamp: new Date().toISOString() }),
+        details: { timestamp: new Date().toISOString() },
       });
 
       this.logger.info('User registration audit log created', {
@@ -90,7 +90,7 @@ export class DrizzleAuditLogger implements IAuditLogger {
         resource: 'AUTH',
         ipAddress,
         userAgent,
-        metadata: JSON.stringify({ timestamp: new Date().toISOString() }),
+        details: { timestamp: new Date().toISOString() },
       });
 
       this.logger.info('Password change audit log created', {
@@ -113,10 +113,10 @@ export class DrizzleAuditLogger implements IAuditLogger {
         resource: 'AUTH',
         ipAddress,
         userAgent,
-        metadata: JSON.stringify({
+        details: {
           email,
           timestamp: new Date().toISOString(),
-        }),
+        },
       });
 
       this.logger.warn('Failed login attempt audit log created', {

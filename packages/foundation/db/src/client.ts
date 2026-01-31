@@ -1,11 +1,11 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import type { DBClient, DatabaseConfig } from './types.js';
+import type { DBClient, DatabaseConfig, DrizzleDatabase } from './types.js';
 import * as schema from './schema/index.js';
 
 export class PostgresClient implements DBClient {
   private client: postgres.Sql;
-  private db: ReturnType<typeof drizzle>;
+  private db: DrizzleDatabase;
 
   constructor(config: DatabaseConfig) {
     this.client = postgres(config.url, {

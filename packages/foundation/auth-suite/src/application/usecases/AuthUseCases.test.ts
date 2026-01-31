@@ -1,8 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { RegisterUserUseCase } from '@foundation/auth-suite/application/usecases/RegisterUserUseCase.js';
 import { LoginUseCase } from '@foundation/auth-suite/application/usecases/LoginUseCase.js';
+import { LogoutUseCase } from '@foundation/auth-suite/application/usecases/LogoutUseCase.js';
+import { ValidateSessionUseCase } from '@foundation/auth-suite/application/usecases/ValidateSessionUseCase.js';
 import { User } from '@foundation/auth-suite/domain/entities/User.js';
-import { Session } from '@foundation/auth-suite/domain/entities/Session.js';
+import { Session, SessionToken } from '@foundation/auth-suite/domain/entities/Session.js';
 
 // Mock implementations
 const createMockUserRepository = () => ({
@@ -29,8 +31,8 @@ const createMockPasswordHasher = () => ({
 });
 
 const createMockTokenGenerator = () => ({
-  generate: vi.fn(),
-  verify: vi.fn(),
+  generateToken: vi.fn(),
+  verifyToken: vi.fn(),
 });
 
 const createMockAuditLogger = () => ({
@@ -63,16 +65,16 @@ describe('RegisterUserUseCase', () => {
       lastName: 'Doe',
     };
 
-    mockUserRepo.existsByEmail.mockResolvedValue(false);
+    mockUserRepo.findByEmail.mockResolvedValue(null);
     mockPasswordHasher.hash.mockResolvedValue('hashed_password');
     mockUserRepo.save.mockImplementation((user: User) => user);
 
     const result = await useCase.execute(userData);
 
-    expect(result).toBeInstanceOf(User);
-    expect(result.getEmail()).toBe(userData.email);
-    expect(result.getFirstName()).toBe(userData.firstName);
-    expect(mockUserRepo.existsByEmail).toHaveBeenCalledWith(userData.email);
+    expect(result.user).toBeInstanceOf(User);
+    expect(result.user.getEmail()).toBe(userData.email);
+    expect(result.user.getFirstName()).toBe(userData.firstName);
+    expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(userData.email);
     expect(mockPasswordHasher.hash).toHaveBeenCalledWith(userData.password);
     expect(mockUserRepo.save).toHaveBeenCalled();
     expect(mockAuditLogger.logUserRegistration).toHaveBeenCalled();
@@ -86,9 +88,17 @@ describe('RegisterUserUseCase', () => {
       lastName: 'Doe',
     };
 
-    mockUserRepo.existsByEmail.mockResolvedValue(true);
+    mockUserRepo.findByEmail.mockResolvedValue(
+      User.create({
+        id: 'user-id',
+        email: userData.email,
+        passwordHash: 'hashed_password',
+        firstName: 'John',
+        lastName: 'Doe',
+      })
+    );
 
-    await expect(useCase.execute(userData)).rejects.toThrow('Email already exists');
+    await expect(useCase.execute(userData)).rejects.toThrow('User with this email already exists');
     expect(mockUserRepo.save).not.toHaveBeenCalled();
   });
 });
@@ -113,7 +123,8 @@ describe('LoginUseCase', () => {
       mockSessionStore,
       mockPasswordHasher,
       mockTokenGenerator,
-      mockAuditLogger
+      mockAuditLogger,
+      60 * 60 * 24
     );
   });
 
@@ -133,20 +144,21 @@ describe('LoginUseCase', () => {
 
     const mockSession = Session.create({
       id: 'session-id',
-      token: 'session-token',
+      token: SessionToken.create('session-token'),
       userId: mockUser.getId(),
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockPasswordHasher.verify.mockResolvedValue(true);
-    mockTokenGenerator.generate.mockResolvedValue('session-token');
+    mockTokenGenerator.generateToken.mockResolvedValue('session-token');
     mockSessionStore.save.mockResolvedValue(mockSession);
 
     const result = await useCase.execute(loginData);
 
-    expect(result.user).toBe(mockUser);
-    expect(result.session).toBe(mockSession);
+    expect(result.user.getId()).toBe(mockUser.getId());
+    expect(result.user.getLastLoginAt()).toBeDefined();
+    expect(result.session.getData().id).toBe(mockSession.getData().id);
     expect(mockAuditLogger.logUserLogin).toHaveBeenCalled();
   });
 
@@ -181,5 +193,96 @@ describe('LoginUseCase', () => {
 
     await expect(useCase.execute(loginData)).rejects.toThrow('Invalid credentials');
     expect(mockAuditLogger.logFailedLogin).toHaveBeenCalled();
+  });
+});
+
+describe('LogoutUseCase', () => {
+  let useCase: LogoutUseCase;
+  let mockSessionStore: any;
+  let mockAuditLogger: any;
+
+  beforeEach(() => {
+    mockSessionStore = createMockSessionStore();
+    mockAuditLogger = createMockAuditLogger();
+    useCase = new LogoutUseCase(mockSessionStore, mockAuditLogger);
+  });
+
+  it('should logout user successfully using token raw value', async () => {
+    const token = 'valid-token';
+    const mockSession = { getData: () => ({ id: 's1', userId: 'u1' }) };
+    mockSessionStore.findByToken.mockResolvedValue(mockSession);
+
+    await useCase.execute({ token });
+
+    expect(mockSessionStore.delete).toHaveBeenCalledWith(token);
+    expect(mockAuditLogger.logUserLogout).toHaveBeenCalled();
+  });
+
+  it('should do nothing if session not found', async () => {
+    mockSessionStore.findByToken.mockResolvedValue(null);
+    await useCase.execute({ token: 'none' });
+    expect(mockSessionStore.delete).not.toHaveBeenCalled();
+  });
+});
+
+describe('ValidateSessionUseCase', () => {
+  let useCase: ValidateSessionUseCase;
+  let mockSessionStore: any;
+  let mockUserRepo: any;
+  let mockTokenGenerator: any;
+
+  beforeEach(() => {
+    mockSessionStore = createMockSessionStore();
+    mockUserRepo = createMockUserRepository();
+    mockTokenGenerator = createMockTokenGenerator();
+    useCase = new ValidateSessionUseCase(mockSessionStore, mockUserRepo, mockTokenGenerator);
+  });
+
+  it('should validate a valid session', async () => {
+    const token = 'valid-token';
+    const userId = 'user-123';
+    const mockUser = User.create({ id: userId, email: 't@e.com', passwordHash: 'h', firstName: 'F', lastName: 'L' });
+    const mockSession = Session.reconstruct({
+      id: 's1',
+      token,
+      userId,
+      expiresAt: new Date(Date.now() + 10000),
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    mockTokenGenerator.verifyToken.mockResolvedValue(true);
+    mockSessionStore.findByToken.mockResolvedValue(mockSession);
+    mockUserRepo.findById.mockResolvedValue(mockUser);
+
+    const result = await useCase.execute({ token });
+
+    expect(result.user.getId()).toBe(mockUser.getId());
+    expect(result.session.getData().id).toBe(mockSession.getData().id);
+  });
+
+  it('should throw AuthError for invalid token', async () => {
+    mockTokenGenerator.verifyToken.mockResolvedValue(false);
+    await expect(useCase.execute({ token: 'bad' })).rejects.toThrow('Invalid session token');
+  });
+
+  it('should throw AuthError for expired session and delete it', async () => {
+    const token = 'expired-token';
+    const mockSession = Session.reconstruct({
+      id: 's1',
+      token,
+      userId: 'u1',
+      expiresAt: new Date(Date.now() - 10000),
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    mockTokenGenerator.verifyToken.mockResolvedValue(true);
+    mockSessionStore.findByToken.mockResolvedValue(mockSession);
+
+    await expect(useCase.execute({ token })).rejects.toThrow('Session expired or invalid');
+    expect(mockSessionStore.delete).toHaveBeenCalledWith(token);
   });
 });

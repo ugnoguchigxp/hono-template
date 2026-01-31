@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Common columns
 export const commonColumns = {
@@ -28,7 +28,9 @@ export const sessions = pgTable('sessions', {
     .references(() => users.id, { onDelete: 'cascade' }),
   expiresAt: timestamp('expires_at').notNull(),
   isActive: boolean('is_active').notNull().default(true),
-});
+}, (table) => ({
+  expiresAtIndex: index('sessions_expires_at_idx').on(table.expiresAt),
+}));
 
 // Roles table for RBAC
 export const roles = pgTable('roles', {
@@ -56,10 +58,47 @@ export const auditLogs = pgTable('audit_logs', {
   action: text('action').notNull(),
   resource: text('resource').notNull(),
   resourceId: uuid('resource_id'),
-  details: text('details'), // JSON string
+  details: jsonb('details'),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
-});
+}, (table) => ({
+  userIdIndex: index('audit_logs_user_id_idx').on(table.userId),
+  actionIndex: index('audit_logs_action_idx').on(table.action),
+  resourceIndex: index('audit_logs_resource_idx').on(table.resource),
+  createdAtIndex: index('audit_logs_created_at_idx').on(table.createdAt),
+}));
+
+// BBS: Threads table
+export const threads = pgTable('threads', {
+  ...commonColumns,
+  title: text('title').notNull(),
+  content: text('content'),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+}, (table) => ({
+  authorIdIndex: index('threads_author_id_idx').on(table.authorId),
+  createdAtIndex: index('threads_created_at_idx').on(table.createdAt),
+}));
+
+// BBS: Comments table
+export const comments = pgTable('comments', {
+  ...commonColumns,
+  threadId: uuid('thread_id')
+    .notNull()
+    .references(() => threads.id, { onDelete: 'cascade' }),
+  parentId: uuid('parent_id')
+    .references((): any => comments.id, { onDelete: 'set null' }),
+  content: text('content').notNull(),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+}, (table) => ({
+  threadIdIndex: index('comments_thread_id_idx').on(table.threadId),
+  parentIdIndex: index('comments_parent_id_idx').on(table.parentId),
+  authorIdIndex: index('comments_author_id_idx').on(table.authorId),
+  createdAtIndex: index('comments_created_at_idx').on(table.createdAt),
+}));
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -71,3 +110,7 @@ export type UserRole = typeof userRoles.$inferSelect;
 export type NewUserRole = typeof userRoles.$inferInsert;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
+export type Thread = typeof threads.$inferSelect;
+export type NewThread = typeof threads.$inferInsert;
+export type Comment = typeof comments.$inferSelect;
+export type NewComment = typeof comments.$inferInsert;

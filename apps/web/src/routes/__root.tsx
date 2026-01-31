@@ -1,7 +1,10 @@
 import { createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
 import { Button } from '@gxp/design-system';
+import { bbsIndexRoute } from '../domain/bbs/BbsIndexRoute.js';
+import { bbsDetailRoute } from '../domain/bbs/BbsDetailRoute.js';
+import { MessageSquare } from 'lucide-react';
 
-const rootRoute = createRootRoute({
+export const rootRoute = createRootRoute({
   component: () => (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
@@ -14,6 +17,12 @@ const rootRoute = createRootRoute({
               </Button>
               <Button variant="ghost" asChild>
                 <a href="/auth">Auth</a>
+              </Button>
+              <Button variant="ghost" asChild className="flex items-center gap-2 text-blue-600 font-medium">
+                <a href="/bbs">
+                  <MessageSquare size={16} />
+                  BBS
+                </a>
               </Button>
             </nav>
           </div>
@@ -82,6 +91,4 @@ const authRoute = createRoute({
   ),
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, authRoute]);
-
-export { routeTree };
+export const routeTree = rootRoute.addChildren([indexRoute, authRoute, bbsIndexRoute, bbsDetailRoute]);

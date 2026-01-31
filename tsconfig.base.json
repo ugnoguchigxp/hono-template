@@ -32,7 +32,9 @@
       "@adapters/http-hono": ["./packages/adapters/http-hono/src"],
       "@adapters/http-hono/*": ["./packages/adapters/http-hono/src/*"],
       "@adapters/db-drizzle": ["./packages/adapters/db-drizzle/src"],
-      "@adapters/db-drizzle/*": ["./packages/adapters/db-drizzle/src/*"]
+      "@adapters/db-drizzle/*": ["./packages/adapters/db-drizzle/src/*"],
+      "@domains/bbs": ["./packages/domains/bbs/src"],
+      "@domains/bbs/*": ["./packages/domains/bbs/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", "build"]

@@ -5,6 +5,12 @@ import type {
   RegisterUserUseCase,
   ValidateSessionUseCase,
 } from '@foundation/auth-suite/application/index.js';
+import type {
+  CreateThreadUseCase,
+  GetThreadDetailUseCase,
+  ListThreadsUseCase,
+  PostCommentUseCase,
+} from '@domains/bbs';
 import { Hono } from 'hono';
 import {
   createHealthCheckHandler,
@@ -13,6 +19,12 @@ import {
   createMeHandler,
   createRegisterHandler,
 } from './handlers/index.js';
+import {
+  createCreateThreadHandler,
+  createListThreadsHandler,
+  createPostCommentHandler,
+  createThreadDetailHandler,
+} from './handlers/bbs.js';
 import {
   authMiddleware,
   createErrorHandler,
@@ -27,13 +39,14 @@ export interface HonoAppDependencies {
   registerUserUseCase: RegisterUserUseCase;
   validateSessionUseCase: ValidateSessionUseCase;
   logoutUseCase: LogoutUseCase;
+  listThreadsUseCase: ListThreadsUseCase;
+  createThreadUseCase: CreateThreadUseCase;
+  getThreadDetailUseCase: GetThreadDetailUseCase;
+  postCommentUseCase: PostCommentUseCase;
 }
 
 export function createHonoApp(dependencies: HonoAppDependencies): Hono {
   const app = new Hono();
-
-  // Global middleware
-  app.use('*', requestContextMiddleware());
 
   // Set global dependencies
   app.use('*', async (c, next) => {
@@ -41,6 +54,9 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono {
     c.set('container', dependencies.container);
     await next();
   });
+
+  // Global middleware
+  app.use('*', requestContextMiddleware());
 
   // Error handling
   app.onError(createErrorHandler());
@@ -62,11 +78,24 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono {
   protectedRoutes.get('/me', createMeHandler());
 
   authRoutes.route('/', protectedRoutes);
-  app.route('/auth', authRoutes);
 
   // API v1 routes
   const apiV1 = new Hono();
   apiV1.route('/auth', authRoutes);
+
+  // BBS routes
+  const bbsRoutes = new Hono();
+  bbsRoutes.get('/threads', createListThreadsHandler(dependencies.listThreadsUseCase));
+  bbsRoutes.get('/threads/:id', createThreadDetailHandler(dependencies.getThreadDetailUseCase));
+  
+  // Protected BBS routes
+  const protectedBbs = new Hono();
+  protectedBbs.use('*', authMiddleware(dependencies.validateSessionUseCase));
+  protectedBbs.post('/threads', createCreateThreadHandler(dependencies.createThreadUseCase));
+  protectedBbs.post('/threads/:id/comments', createPostCommentHandler(dependencies.postCommentUseCase));
+  
+  bbsRoutes.route('/', protectedBbs);
+  apiV1.route('/bbs', bbsRoutes);
 
   app.route('/api/v1', apiV1);
 

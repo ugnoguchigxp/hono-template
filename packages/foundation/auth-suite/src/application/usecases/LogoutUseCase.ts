@@ -1,6 +1,5 @@
-import { AuthError } from '@foundation/app-core/errors.js';
-import type { SessionToken } from '../contracts.js';
 import type { IAuditLogger, ISessionStore } from '../ports.js';
+import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 
 export interface LogoutInput {
   token: string;
@@ -15,14 +14,14 @@ export class LogoutUseCase {
   ) {}
 
   async execute(input: LogoutInput): Promise<void> {
-    const token = SessionToken.create(input.token);
+    const token = SessionTokenVO.create(input.token);
 
-    const session = await this.sessionStore.findByToken(token);
+    const session = await this.sessionStore.findByToken(token.raw);
     if (!session) {
       return; // Session already expired or doesn't exist
     }
 
-    await this.sessionStore.delete(token);
+    await this.sessionStore.delete(token.raw);
 
     await this.auditLogger.logUserLogout(
       session.getData().userId,

@@ -47,9 +47,10 @@ export class Permission {
     return this.value;
   }
 
-  matches(pattern: string): boolean {
-    const regex = new RegExp(pattern.replace('*', '.*'));
-    return regex.test(this.value);
+  matches(input: string): boolean {
+    const pattern = this.value.replace(/\*/g, '.*');
+    const regex = new RegExp(`^${pattern}$`);
+    return regex.test(input);
   }
 }
 

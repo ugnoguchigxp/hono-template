@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const UserIdSchema = z.string().uuid();
 export const EmailSchema = z.string().email();
-export const PasswordHashSchema = z.string().min(60); // bcrypt hash length
+export const PasswordHashSchema = z.string().min(60); // argon2 hash length (varies)
 export const SessionTokenSchema = z.string().min(32);
 export const RoleIdSchema = z.string().uuid();
 export const PermissionSchema = z.string();

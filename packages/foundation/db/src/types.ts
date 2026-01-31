@@ -1,18 +1,22 @@
 import type { Transaction as BaseTransaction } from '@foundation/app-core/types.js';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import type * as schema from './schema/index.js';
+
+export type DrizzleDatabase = PostgresJsDatabase<typeof schema>;
 
 export interface DBClient {
   rawQuery<T = unknown>(sql: string, params?: unknown[]): Promise<T[]>;
   rawQueryOne<T = unknown>(sql: string, params?: unknown[]): Promise<T | null>;
   transaction<T>(callback: (tx: Transaction) => Promise<T>): Promise<T>;
   // Drizzle ORM methods
-  getDrizzleDB(): any; // Using any for Drizzle compatibility
+  getDrizzleDB(): DrizzleDatabase;
   // Drizzle query methods
-  insert: any;
-  update: any;
-  delete: any;
-  select: any;
+  insert: DrizzleDatabase['insert'];
+  update: DrizzleDatabase['update'];
+  delete: DrizzleDatabase['delete'];
+  select: DrizzleDatabase['select'];
   // Drizzle schema access
-  query: any;
+  query: DrizzleDatabase['query'];
 }
 
 export interface Transaction extends BaseTransaction {

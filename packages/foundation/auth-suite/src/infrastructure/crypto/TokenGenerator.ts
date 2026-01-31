@@ -16,7 +16,9 @@ export class CryptoTokenGenerator implements ITokenGenerator {
 
   async verifyToken(token: string): Promise<boolean> {
     // For crypto-generated tokens, verification is just checking format
-    return /^[a-f0-9]{128}$/.test(token);
+    const expectedLength = this.tokenLength * 2;
+    const pattern = new RegExp(`^[a-f0-9]{${expectedLength}}$`);
+    return pattern.test(token);
   }
 }
 

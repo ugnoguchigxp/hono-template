@@ -1,14 +1,18 @@
+import type { Container } from '@foundation/app-core/types.js';
+import { DIKeys } from '@foundation/app-core/di/index.js';
 import { HealthCheckResponseSchema } from '@foundation/contracts/api/index.js';
+import type { DBClient } from '@foundation/db/types.js';
 import type { Context } from 'hono';
 
 export function createHealthCheckHandler(version = '1.0.0') {
   return async (c: Context) => {
     const startTime = Date.now();
     const logger = c.get('logger');
+    const container = c.get('container') as Container | undefined;
 
     // Perform health checks
     const checks: Record<string, any> = {
-      database: await checkDatabase(),
+      database: await checkDatabase(container),
       memory: checkMemory(),
       disk: await checkDisk(),
     };
@@ -34,19 +38,19 @@ export function createHealthCheckHandler(version = '1.0.0') {
   };
 }
 
-async function checkDatabase(): Promise<{
+async function checkDatabase(container?: Container): Promise<{
   status: string;
   message?: string;
   responseTime?: number;
 }> {
   try {
-    const dbClient = globalThis.dbClient; // Should be injected via DI
-    if (!dbClient) {
+    if (!container || !container.has(DIKeys.DatabaseClient)) {
       return { status: 'unhealthy', message: 'Database client not available' };
     }
 
+    const dbClient = container.resolve<DBClient>(DIKeys.DatabaseClient);
     const start = Date.now();
-    await dbClient.query('SELECT 1');
+    await dbClient.rawQuery('SELECT 1');
     const responseTime = Date.now() - start;
 
     return { status: 'healthy', responseTime };

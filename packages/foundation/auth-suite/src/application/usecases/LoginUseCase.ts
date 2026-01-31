@@ -1,14 +1,9 @@
 import { AuthError } from '@foundation/app-core/errors.js';
 import { LoginCredentialsSchema } from '../../contracts.js';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
-import type { Session, SessionToken } from '../../domain/index.js';
+import { Session } from '../../domain/entities/Session.js';
+import type { User } from '../../domain/index.js';
 import { UserPolicy } from '../../domain/policies/UserPolicy.js';
-import type {
-  LoginUseCase as LoginUseCaseType,
-  LogoutUseCase,
-  RegisterUserUseCase,
-  ValidateSessionUseCase,
-} from '../index.js';
 import type {
   IAuditLogger,
   IPasswordHasher,
@@ -25,8 +20,8 @@ export interface LoginInput {
 }
 
 export interface LoginOutput {
-  user: any; // User entity
-  session: any; // Session entity
+  user: User;
+  session: Session;
 }
 
 export class LoginUseCase {
@@ -35,7 +30,8 @@ export class LoginUseCase {
     private readonly sessionStore: ISessionStore,
     private readonly passwordHasher: IPasswordHasher,
     private readonly tokenGenerator: ITokenGenerator,
-    private readonly auditLogger: IAuditLogger
+    private readonly auditLogger: IAuditLogger,
+    private readonly sessionTtlSeconds: number
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
@@ -66,7 +62,7 @@ export class LoginUseCase {
     await this.userRepository.update(updatedUser);
 
     const token = await this.tokenGenerator.generateToken();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const expiresAt = new Date(Date.now() + this.sessionTtlSeconds * 1000);
 
     const sessionToken = SessionTokenVO.create(token);
     const session = Session.create({

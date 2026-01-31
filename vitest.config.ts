@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import path from 'node:path';
 
 export default defineConfig({
   test: {
@@ -6,5 +7,26 @@ export default defineConfig({
     environment: 'node',
     include: ['packages/**/*.{test,spec}.{ts,js}', 'apps/**/*.{test,spec}.{ts,js}'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
+    alias: [
+      {
+        find: /^@(foundation|adapters|domains)\/([^/]+)\/(.*)\.js$/,
+        replacement: path.join(__dirname, 'packages/$1/$2/src/$3'),
+      },
+      {
+        find: /^@(foundation|adapters|domains)\/([^/]+)\/(.*)$/,
+        replacement: path.join(__dirname, 'packages/$1/$2/src/$3'),
+      },
+      {
+        find: /^@(foundation|adapters|domains)\/([^/]+)$/,
+        replacement: path.join(__dirname, 'packages/$1/$2/src/index.ts'),
+      },
+      {
+        find: /^(\.\.?\/.*)\.js$/,
+        replacement: '$1',
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.ts', '.js'],
   },
 });
