@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@foundation/app-core": ["./packages/foundation/app-core/src"],
+      "@foundation/app-core/*": ["./packages/foundation/app-core/src/*"],
+      "@foundation/auth-suite": ["./packages/foundation/auth-suite/src"],
+      "@foundation/auth-suite/*": ["./packages/foundation/auth-suite/src/*"],
+      "@foundation/db": ["./packages/foundation/db/src"],
+      "@foundation/db/*": ["./packages/foundation/db/src/*"],
+      "@foundation/contracts": ["./packages/foundation/contracts/src"],
+      "@foundation/contracts/*": ["./packages/foundation/contracts/src/*"],
+      "@adapters/http-hono": ["./packages/adapters/http-hono/src"],
+      "@adapters/http-hono/*": ["./packages/adapters/http-hono/src/*"],
+      "@adapters/db-drizzle": ["./packages/adapters/db-drizzle/src"],
+      "@adapters/db-drizzle/*": ["./packages/adapters/db-drizzle/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build"]
+}
