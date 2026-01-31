@@ -4,28 +4,35 @@ import {
   PasswordHash as PasswordHashVO,
   UserId as UserIdVO,
 } from '../value-objects/index.js';
+import { ExternalAccount } from './ExternalAccount.js';
 
 export class User {
   private readonly id: UserIdVO;
   private readonly email: EmailVO;
-  private readonly passwordHash: PasswordHashVO;
+  private readonly passwordHash: PasswordHashVO | null;
   private readonly firstName: string;
   private readonly lastName: string;
   private readonly active: boolean;
   private readonly createdAt: Date;
   private readonly updatedAt: Date;
   private readonly lastLoginAt: Date | null;
+  private readonly mfaEnabled: boolean;
+  private readonly mfaSecret: string | null;
+  private readonly externalAccounts: ExternalAccount[] = [];
 
   private constructor(data: {
     id: UserIdVO;
     email: EmailVO;
-    passwordHash: PasswordHashVO;
+    passwordHash: PasswordHashVO | null;
     firstName: string;
     lastName: string;
     active: boolean;
     createdAt: Date;
     updatedAt: Date;
     lastLoginAt: Date | null;
+    mfaEnabled: boolean;
+    mfaSecret: string | null;
+    externalAccounts?: ExternalAccount[];
   }) {
     this.id = data.id;
     this.email = data.email;
@@ -36,25 +43,30 @@ export class User {
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
     this.lastLoginAt = data.lastLoginAt;
+    this.mfaEnabled = data.mfaEnabled;
+    this.mfaSecret = data.mfaSecret;
+    this.externalAccounts = data.externalAccounts || [];
   }
 
   static create(data: {
     id: UserId;
     email: Email;
-    passwordHash: PasswordHash;
+    passwordHash: PasswordHash | null;
     firstName: string;
     lastName: string;
   }): User {
     return new User({
       id: UserIdVO.create(data.id),
       email: EmailVO.create(data.email),
-      passwordHash: PasswordHashVO.create(data.passwordHash),
+      passwordHash: data.passwordHash ? PasswordHashVO.create(data.passwordHash) : null,
       firstName: data.firstName,
       lastName: data.lastName,
       active: true,
       createdAt: new Date(),
       updatedAt: new Date(),
       lastLoginAt: null,
+      mfaEnabled: false,
+      mfaSecret: null,
     });
   }
 
@@ -62,13 +74,15 @@ export class User {
     return new User({
       id: UserIdVO.create(data.id),
       email: EmailVO.create(data.email),
-      passwordHash: PasswordHashVO.create(data.passwordHash),
+      passwordHash: data.passwordHash ? PasswordHashVO.create(data.passwordHash) : null,
       firstName: data.firstName,
       lastName: data.lastName,
       active: data.isActive,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
       lastLoginAt: data.lastLoginAt,
+      mfaEnabled: data.mfaEnabled,
+      mfaSecret: data.mfaSecret,
     });
   }
 
@@ -130,6 +144,32 @@ export class User {
     });
   }
 
+  enableMfa(secret: string): User {
+    return new User({
+      ...this.getDataWithVOs(),
+      mfaEnabled: true,
+      mfaSecret: secret,
+      updatedAt: new Date(),
+    });
+  }
+
+  disableMfa(): User {
+    return new User({
+      ...this.getDataWithVOs(),
+      mfaEnabled: false,
+      mfaSecret: null,
+      updatedAt: new Date(),
+    });
+  }
+
+  addExternalAccount(account: ExternalAccount): User {
+    return new User({
+      ...this.getDataWithVOs(),
+      externalAccounts: [...this.externalAccounts, account],
+      updatedAt: new Date(),
+    });
+  }
+
   isActiveUser(): boolean {
     return this.active;
   }
@@ -138,17 +178,31 @@ export class User {
     return this.active;
   }
 
+  isMfaRequired(): boolean {
+    return this.mfaEnabled;
+  }
+
+  getMfaSecret(): string | null {
+    return this.mfaSecret;
+  }
+
+  getExternalAccounts(): ExternalAccount[] {
+    return [...this.externalAccounts];
+  }
+
   getData(): UserType {
     return {
       id: this.id.raw,
       email: this.email.raw,
-      passwordHash: this.passwordHash.raw,
+      passwordHash: this.passwordHash?.raw ?? null,
       firstName: this.firstName,
       lastName: this.lastName,
       isActive: this.active,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       lastLoginAt: this.lastLoginAt,
+      mfaEnabled: this.mfaEnabled,
+      mfaSecret: this.mfaSecret,
     };
   }
 
@@ -156,13 +210,16 @@ export class User {
   private getDataWithVOs(): {
     id: UserIdVO;
     email: EmailVO;
-    passwordHash: PasswordHashVO;
+    passwordHash: PasswordHashVO | null;
     firstName: string;
     lastName: string;
     active: boolean;
     createdAt: Date;
     updatedAt: Date;
     lastLoginAt: Date | null;
+    mfaEnabled: boolean;
+    mfaSecret: string | null;
+    externalAccounts: ExternalAccount[];
   } {
     return {
       id: this.id,
@@ -174,6 +231,9 @@ export class User {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       lastLoginAt: this.lastLoginAt,
+      mfaEnabled: this.mfaEnabled,
+      mfaSecret: this.mfaSecret,
+      externalAccounts: this.externalAccounts,
     };
   }
 

@@ -10,6 +10,17 @@ export const EnvironmentSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('24h'),
   SESSION_TTL: z.coerce.number().int().positive().default(86400),
   BCRYPT_ROUNDS: z.coerce.number().int().positive().default(12),
+  MFA_SECRET_ENCRYPTION_KEY: z.string().length(32).default('0123456789abcdef0123456789abcdef'),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GITHUB_REDIRECT_URI: z.string().optional(),
+  MSAL_CLIENT_ID: z.string().optional(),
+  MSAL_CLIENT_SECRET: z.string().optional(),
+  MSAL_REDIRECT_URI: z.string().optional(),
+  MSAL_TENANT_ID: z.string().optional().default('common'),
 });
 
 export type Environment = z.infer<typeof EnvironmentSchema>;

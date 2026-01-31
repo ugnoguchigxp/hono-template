@@ -19,6 +19,7 @@
     "@foundation/contracts": "workspace:*",
     "@node-rs/argon2": "^1.8.0",
     "crypto": "^1.0.1",
+    "otplib": "^13.2.1",
     "zod": "^3.22.0"
   },
   "devDependencies": {

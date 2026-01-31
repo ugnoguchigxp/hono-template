@@ -1,75 +1,58 @@
+import { authenticator } from 'otplib';
 import { AuthError } from '@foundation/app-core/errors.js';
-import { LoginCredentialsSchema } from '../../contracts.js';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import type { User } from '../../domain/index.js';
 import { UserPolicy } from '../../domain/policies/UserPolicy.js';
 import type {
   IAuditLogger,
-  IPasswordHasher,
   ISessionStore,
   ITokenGenerator,
   IUserRepository,
 } from '../ports.js';
 
-export interface LoginInput {
-  email: string;
-  password: string;
+export interface VerifyMfaInput {
+  userId: string;
+  code: string; // TOTP code
   ipAddress?: string;
   userAgent?: string;
 }
 
-export type LoginOutput =
-  | { type: 'SUCCESS'; user: User; session: Session }
-  | { type: 'MFA_REQUIRED'; userId: string; email: string };
+export interface VerifyMfaOutput {
+  user: User;
+  session: Session;
+}
 
-export class LoginUseCase {
+export class VerifyMfaUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly sessionStore: ISessionStore,
-    private readonly passwordHasher: IPasswordHasher,
     private readonly tokenGenerator: ITokenGenerator,
     private readonly auditLogger: IAuditLogger,
     private readonly sessionTtlSeconds: number
   ) {}
 
-  async execute(input: LoginInput): Promise<LoginOutput> {
-    const credentials = LoginCredentialsSchema.parse({
-      email: input.email,
-      password: input.password,
-    });
-
-    const user = await this.userRepository.findByEmail(credentials.email);
+  async execute(input: VerifyMfaInput): Promise<VerifyMfaOutput> {
+    const user = await this.userRepository.findById(input.userId);
     if (!user) {
-      await this.auditLogger.logFailedLogin(credentials.email, input.ipAddress, input.userAgent);
-      throw new AuthError('Invalid credentials');
+      throw new AuthError('User not found');
     }
 
     UserPolicy.canUserLogin(user.getData());
 
-    const userData = user.getData();
-    if (!userData.passwordHash) {
-      // User must login via OAuth
-      throw new AuthError('Please login using your linked social account');
+    if (!user.isMfaRequired()) {
+      throw new AuthError('MFA is not enabled for this user');
     }
 
-    const isValidPassword = await this.passwordHasher.verify(
-      credentials.password,
-      userData.passwordHash
-    );
-
-    if (!isValidPassword) {
-      await this.auditLogger.logFailedLogin(credentials.email, input.ipAddress, input.userAgent);
-      throw new AuthError('Invalid credentials');
+    // Verify TOTP code
+    const secret = user.getMfaSecret();
+    if (!secret) {
+      throw new AuthError('MFA secret not found');
     }
 
-    // Check if MFA is required
-    if (user.isMfaRequired()) {
-      return {
-        type: 'MFA_REQUIRED',
-        userId: user.getId(),
-        email: user.getEmail(),
-      };
+    const isValid = await this.verifyTotp(input.code, secret);
+    if (!isValid) {
+      throw new AuthError('Invalid MFA code');
     }
 
     const updatedUser = user.updateLastLogin();
@@ -91,9 +74,17 @@ export class LoginUseCase {
     await this.auditLogger.logUserLogin(user.getId(), input.ipAddress, input.userAgent);
 
     return {
-      type: 'SUCCESS',
       user: updatedUser,
       session: savedSession,
     };
+  }
+
+  // Real TOTP verification logic
+  private async verifyTotp(code: string, secret: string): Promise<boolean> {
+    try {
+      return authenticator.check(code, secret);
+    } catch (error) {
+      return false;
+    }
   }
 }

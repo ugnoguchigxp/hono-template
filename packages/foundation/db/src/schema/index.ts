@@ -12,12 +12,31 @@ export const commonColumns = {
 export const users = pgTable('users', {
   ...commonColumns,
   email: text('email').notNull().unique(),
-  passwordHash: text('password_hash').notNull(),
+  passwordHash: text('password_hash'), // Nullable to support OAuth-only accounts
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   isActive: boolean('is_active').notNull().default(true),
   lastLoginAt: timestamp('last_login_at'),
+  mfaEnabled: boolean('mfa_enabled').notNull().default(false),
+  mfaSecret: text('mfa_secret'), // Encrypted TOTP secret
 });
+
+// External accounts (OAuth/SSO)
+export const userExternalAccounts = pgTable('user_external_accounts', {
+  ...commonColumns,
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  provider: text('provider').notNull(), // e.g., 'google', 'github'
+  externalId: text('external_id').notNull(),
+  email: text('email'),
+}, (table) => ({
+  providerExternalIdIdx: index('user_external_accounts_provider_external_id_idx').on(
+    table.provider,
+    table.externalId
+  ),
+  userIdIdx: index('user_external_accounts_user_id_idx').on(table.userId),
+}));
 
 // Sessions table for authentication
 export const sessions = pgTable('sessions', {
@@ -114,3 +133,5 @@ export type Thread = typeof threads.$inferSelect;
 export type NewThread = typeof threads.$inferInsert;
 export type Comment = typeof comments.$inferSelect;
 export type NewComment = typeof comments.$inferInsert;
+export type UserExternalAccount = typeof userExternalAccounts.$inferSelect;
+export type NewUserExternalAccount = typeof userExternalAccounts.$inferInsert;

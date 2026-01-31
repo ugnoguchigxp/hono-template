@@ -5,7 +5,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['packages/**/*.{test,spec}.{ts,js}', 'apps/**/*.{test,spec}.{ts,js}'],
+    environmentMatchGlobs: [['apps/web/**/*.{test,spec}.{ts,tsx,js,jsx}', 'jsdom']],
+    include: ['packages/**/*.{test,spec}.{ts,tsx,js,jsx}', 'apps/**/*.{test,spec}.{ts,tsx,js,jsx}'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
     alias: [
       {
@@ -27,6 +28,6 @@ export default defineConfig({
     ],
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
 });

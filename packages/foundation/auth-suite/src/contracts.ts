@@ -10,13 +10,25 @@ export const PermissionSchema = z.string();
 export const UserSchema = z.object({
   id: UserIdSchema,
   email: EmailSchema,
-  passwordHash: PasswordHashSchema,
+  passwordHash: PasswordHashSchema.nullable(),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   isActive: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
   lastLoginAt: z.date().nullable(),
+  mfaEnabled: z.boolean(),
+  mfaSecret: z.string().nullable(),
+});
+
+export const ExternalAccountSchema = z.object({
+  id: z.string().uuid(),
+  userId: UserIdSchema,
+  provider: z.string(),
+  externalId: z.string(),
+  email: EmailSchema.nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const SessionSchema = z.object({
@@ -61,3 +73,4 @@ export type Session = z.infer<typeof SessionSchema>;
 export type Role = z.infer<typeof RoleSchema>;
 export type LoginCredentials = z.infer<typeof LoginCredentialsSchema>;
 export type RegistrationData = z.infer<typeof RegistrationDataSchema>;
+export type ExternalAccount = z.infer<typeof ExternalAccountSchema>;

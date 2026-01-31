@@ -7,15 +7,33 @@ export const LoginRequestSchema = z.object({
   password: z.string().min(1),
 });
 
-export const LoginResponseSchema = z.object({
-  token: z.string(),
-  user: z.object({
-    id: z.string().uuid(),
-    email: z.string().email(),
-    firstName: z.string(),
-    lastName: z.string(),
+export const LoginResponseSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('SUCCESS'),
+    token: z.string(),
+    user: z.object({
+      id: z.string().uuid(),
+      email: z.string().email(),
+      firstName: z.string(),
+      lastName: z.string(),
+    }),
+    expiresAt: z.string().datetime(),
   }),
-  expiresAt: z.string().datetime(),
+  z.object({
+    type: z.literal('MFA_REQUIRED'),
+    userId: z.string().uuid(),
+    email: z.string().email(),
+  }),
+]);
+
+export const VerifyMfaRequestSchema = z.object({
+  userId: z.string().uuid(),
+  code: z.string().length(6),
+});
+
+export const OAuthCallbackRequestSchema = z.object({
+  code: z.string(),
+  state: z.string().optional(),
 });
 
 export const RegisterRequestSchema = z.object({

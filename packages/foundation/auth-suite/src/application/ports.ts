@@ -12,6 +12,7 @@ export interface IUserRepository {
   existsByEmail(email: Email): Promise<boolean>;
   update(user: UserEntity): Promise<UserEntity>;
   delete(id: UserId): Promise<void>;
+  findByExternalId(provider: string, externalId: string): Promise<UserEntity | null>;
 }
 
 export interface ISessionStore {
@@ -55,4 +56,18 @@ export interface IAuditLogger {
   logUserRegistration(userId: UserId, ipAddress?: string, userAgent?: string): Promise<void>;
   logPasswordChange(userId: UserId, ipAddress?: string, userAgent?: string): Promise<void>;
   logFailedLogin(email: Email, ipAddress?: string, userAgent?: string): Promise<void>;
+}
+
+export interface OAuthUserInfo {
+  id: string;
+  email: string | null;
+  firstName: string;
+  lastName: string;
+  provider: string;
+}
+
+export interface IOAuthClient {
+  provider: string;
+  getAuthUrl(state?: string): string;
+  authenticate(code: string): Promise<OAuthUserInfo>;
 }

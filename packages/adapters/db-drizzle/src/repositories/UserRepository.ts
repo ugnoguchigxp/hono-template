@@ -1,8 +1,9 @@
 import type { IUserRepository } from '@foundation/auth-suite/application/ports.js';
 import { User as UserEntity } from '@foundation/auth-suite/domain/entities/User.js';
 import type { DBClient } from '@foundation/db/types.js';
-import { eq } from 'drizzle-orm';
-import { users } from '../schema/index.js';
+import { and, eq } from 'drizzle-orm';
+import { users, userExternalAccounts } from '../schema/index.js';
+import { ExternalAccount } from '@foundation/auth-suite/domain/entities/ExternalAccount.js';
 
 export class DrizzleUserRepository implements IUserRepository {
   constructor(private readonly db: DBClient) {}
@@ -26,6 +27,8 @@ export class DrizzleUserRepository implements IUserRepository {
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
       lastLoginAt: result.lastLoginAt,
+      mfaEnabled: result.mfaEnabled,
+      mfaSecret: result.mfaSecret,
     });
   }
 
@@ -48,6 +51,8 @@ export class DrizzleUserRepository implements IUserRepository {
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
       lastLoginAt: result.lastLoginAt,
+      mfaEnabled: result.mfaEnabled,
+      mfaSecret: result.mfaSecret,
     });
   }
 
@@ -66,6 +71,8 @@ export class DrizzleUserRepository implements IUserRepository {
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
         lastLoginAt: userData.lastLoginAt,
+        mfaEnabled: userData.mfaEnabled,
+        mfaSecret: userData.mfaSecret,
       })
       .onConflictDoUpdate({
         target: users.id,
@@ -77,8 +84,33 @@ export class DrizzleUserRepository implements IUserRepository {
           isActive: userData.isActive,
           updatedAt: userData.updatedAt,
           lastLoginAt: userData.lastLoginAt,
+          mfaEnabled: userData.mfaEnabled,
+          mfaSecret: userData.mfaSecret,
         },
       });
+
+    // Save external accounts
+    const externalAccounts = user.getExternalAccounts();
+    for (const acc of externalAccounts) {
+      const data = acc.getData();
+      await this.db
+        .insert(userExternalAccounts)
+        .values({
+          id: data.id,
+          userId: userData.id,
+          provider: data.provider,
+          externalId: data.externalId,
+          email: data.email,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: userExternalAccounts.id,
+          set: {
+            email: data.email,
+            updatedAt: new Date(),
+          },
+        });
+    }
 
     return user;
   }
@@ -105,6 +137,8 @@ export class DrizzleUserRepository implements IUserRepository {
         isActive: userData.isActive,
         updatedAt: new Date(),
         lastLoginAt: userData.lastLoginAt,
+        mfaEnabled: userData.mfaEnabled,
+        mfaSecret: userData.mfaSecret,
       })
       .where(eq(users.id, userData.id));
 
@@ -113,5 +147,20 @@ export class DrizzleUserRepository implements IUserRepository {
 
   async delete(id: string): Promise<void> {
     await this.db.delete(users).where(eq(users.id, id));
+  }
+
+  async findByExternalId(provider: string, externalId: string): Promise<UserEntity | null> {
+    const externalAcc = await this.db.query.userExternalAccounts.findFirst({
+      where: and(
+        eq(userExternalAccounts.provider, provider),
+        eq(userExternalAccounts.externalId, externalId)
+      ),
+    });
+
+    if (!externalAcc) {
+      return null;
+    }
+
+    return this.findById(externalAcc.userId);
   }
 }

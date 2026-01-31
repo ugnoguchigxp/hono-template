@@ -4,6 +4,8 @@ import type {
   LogoutUseCase,
   RegisterUserUseCase,
   ValidateSessionUseCase,
+  VerifyMfaUseCase,
+  ExternalAuthUseCase,
 } from '@foundation/auth-suite/application/index.js';
 import type {
   CreateThreadUseCase,
@@ -12,12 +14,20 @@ import type {
   PostCommentUseCase,
 } from '@domains/bbs';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { poweredBy } from 'hono/powered-by';
+import { prettyJSON } from 'hono/pretty-json';
+import { secureHeaders } from 'hono/secure-headers';
+import { timing } from 'hono/timing';
 import {
   createHealthCheckHandler,
   createLoginHandler,
   createLogoutHandler,
   createMeHandler,
   createRegisterHandler,
+  createVerifyMfaHandler,
+  createOAuthLoginHandler,
+  createOAuthCallbackHandler,
 } from './handlers/index.js';
 import {
   createCreateThreadHandler,
@@ -27,10 +37,10 @@ import {
 } from './handlers/bbs.js';
 import {
   authMiddleware,
-  createErrorHandler,
   createZodErrorHandler,
   requestContextMiddleware,
 } from './middleware/index.js';
+import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
 
 export interface HonoAppDependencies {
   container: Container;
@@ -39,14 +49,31 @@ export interface HonoAppDependencies {
   registerUserUseCase: RegisterUserUseCase;
   validateSessionUseCase: ValidateSessionUseCase;
   logoutUseCase: LogoutUseCase;
+  verifyMfaUseCase: VerifyMfaUseCase;
+  externalAuthUseCase: ExternalAuthUseCase;
+  oauthClients: Map<string, IOAuthClient>;
   listThreadsUseCase: ListThreadsUseCase;
   createThreadUseCase: CreateThreadUseCase;
   getThreadDetailUseCase: GetThreadDetailUseCase;
   postCommentUseCase: PostCommentUseCase;
 }
+export type AppEnv = {
+  Variables: {
+    logger: Logger;
+    container: Container;
+    user?: any; // Will be properly typed when needed
+  };
+};
 
-export function createHonoApp(dependencies: HonoAppDependencies): Hono {
-  const app = new Hono();
+export function createHonoApp(dependencies: HonoAppDependencies): Hono<AppEnv> {
+  const app = new Hono<AppEnv>();
+
+  // Standard Hono middleware
+  app.use('*', cors());
+  app.use('*', secureHeaders());
+  app.use('*', prettyJSON());
+  app.use('*', timing());
+  app.use('*', poweredBy());
 
   // Set global dependencies
   app.use('*', async (c, next) => {
@@ -58,21 +85,28 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono {
   // Global middleware
   app.use('*', requestContextMiddleware());
 
-  // Error handling
-  app.onError(createErrorHandler());
+  // Error handling (Zod handler wraps generic one)
   app.onError(createZodErrorHandler());
 
   // Health check (no auth required)
   app.get('/health', createHealthCheckHandler());
 
   // Auth routes
-  const authRoutes = new Hono();
+  const authRoutes = new Hono<AppEnv>();
 
   authRoutes.post('/login', createLoginHandler(dependencies.loginUseCase));
   authRoutes.post('/register', createRegisterHandler(dependencies.registerUserUseCase));
+  authRoutes.post('/verify-mfa', createVerifyMfaHandler(dependencies.verifyMfaUseCase));
+
+  // OAuth routes
+  authRoutes.get('/login/:provider', createOAuthLoginHandler(dependencies.oauthClients));
+  authRoutes.get(
+    '/callback/:provider',
+    createOAuthCallbackHandler(dependencies.oauthClients, dependencies.externalAuthUseCase)
+  );
 
   // Protected routes
-  const protectedRoutes = new Hono();
+  const protectedRoutes = new Hono<AppEnv>();
   protectedRoutes.use('*', authMiddleware(dependencies.validateSessionUseCase));
   protectedRoutes.post('/logout', createLogoutHandler(dependencies.logoutUseCase));
   protectedRoutes.get('/me', createMeHandler());
@@ -80,16 +114,16 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono {
   authRoutes.route('/', protectedRoutes);
 
   // API v1 routes
-  const apiV1 = new Hono();
+  const apiV1 = new Hono<AppEnv>();
   apiV1.route('/auth', authRoutes);
 
   // BBS routes
-  const bbsRoutes = new Hono();
+  const bbsRoutes = new Hono<AppEnv>();
   bbsRoutes.get('/threads', createListThreadsHandler(dependencies.listThreadsUseCase));
   bbsRoutes.get('/threads/:id', createThreadDetailHandler(dependencies.getThreadDetailUseCase));
   
   // Protected BBS routes
-  const protectedBbs = new Hono();
+  const protectedBbs = new Hono<AppEnv>();
   protectedBbs.use('*', authMiddleware(dependencies.validateSessionUseCase));
   protectedBbs.post('/threads', createCreateThreadHandler(dependencies.createThreadUseCase));
   protectedBbs.post('/threads/:id/comments', createPostCommentHandler(dependencies.postCommentUseCase));

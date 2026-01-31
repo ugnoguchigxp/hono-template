@@ -1,6 +1,6 @@
 # Hono Template - Clean Architecture Monorepo
 
-[日本語版 (Japanese Version)](./README.jp.md)
+[日本語版 (Japanese Version)](./README.ja.md)
 
 A production-ready monorepo template featuring Hono, Zod, Domain-Driven Design, and Clean Architecture principles.
 
