@@ -74,7 +74,7 @@ repo/
 │   │   │   │   │   ├── ports.ts  # IAuthRepository, ISessionStore
 │   │   │   │   │   └── usecases/ # Login, MFA, RBACチェック
 │   │   │   │   ├── infrastructure/
-│   │   │   │   │   ├── session/  # セッションストア実装 (Redis/Memory)
+│   │   │   │   │   ├── session/  # セッションストア実装 (PostgreSQL cache table/Redis/Memory)
 │   │   │   │   │   └── crypto/   # パスワードハッシュ、トークン生成
 │   │   │   │   └── contracts.ts  # 認証用Zodスキーマ
 │   │   │   └── package.json
@@ -226,7 +226,15 @@ repo/
 3. **インフラストラクチャ**
    - パスワードハッシュ (bcrypt/argon2)
    - トークン生成 (crypto.randomBytes)
-   - セッションストア (Redisまたはインメモリ)
+   - セッションストア (PostgreSQL cache tableを第一候補、Redisはオプション、Memoryはテスト用)
+
+   **PostgreSQL cache table 方針 (Drizzle想定)**
+   - 目的: セッション/短命キャッシュをPostgreSQLで高速化し、依存を最小化
+   - 代表テーブル: `session_cache`
+     - `token` (PK), `user_id`, `expires_at`, `created_at`, `updated_at`, `data` (jsonb)
+     - 主要インデックス: `expires_at`, `user_id`
+   - 運用: `expires_at` による期限管理 + 定期クリーンアップ (cron/job)
+   - 実装: `ISessionStore` を Drizzle 実装 (db-drizzle) で提供
 
 4. **HTTPアダプター**
    - `authMiddleware`: トークン抽出 → 検証 → コンテキスト注入
@@ -599,8 +607,9 @@ describe('PostgresPatientRepository', () => {
 
 2. **db-drizzle アダプター**
    - [ ] UserRepository実装 (Drizzle ORM使用)
-   - [ ] SessionStore実装 (Redisまたはインメモリ)
-   - [ ] 認証テーブル用Drizzleスキーマ・マイグレーション
+   - [ ] SessionStore実装 (PostgreSQL cache table を第一候補、Redisはオプション)
+   - [ ] 認証テーブル + `session_cache` 用Drizzleスキーマ・マイグレーション
+   - [ ] 期限切れ削除ジョブの設計 (cron/worker)
    - [ ] 統合テスト
 
 ### フェーズ3: HTTP層 (3-4週間)
@@ -841,7 +850,6 @@ interface RequestScope {
 - `postgres`: ^3.x (PostgreSQLクライアント)
 - `pino`: ^8.x (ロガー)
 - `@node-rs/argon2`: ^1.x (パスワードハッシュ)
-- `ioredis`: ^5.x (Redisクライアント)
 
 ### フロントエンド本番依存関係
 - `react`: ^18.x
@@ -863,6 +871,7 @@ interface RequestScope {
 - `turbo`: (モノレポビルドシステム)
 
 ### オプション依存関係
+- `ioredis`: ^5.x (Redisクライアント)
 - `@sentry/node`: (エラートラッキング)
 
 ---
