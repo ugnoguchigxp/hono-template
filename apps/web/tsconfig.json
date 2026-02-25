@@ -1,8 +1,13 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -17,9 +22,35 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@foundation/ui-dsl": [
+        "../../packages/foundation/ui-dsl/src/index.ts"
+      ],
+      "@foundation/ui-dsl/*": [
+        "../../packages/foundation/ui-dsl/src/*"
+      ],
+      "@ui/design-system": [
+        "../../packages/foundation/design-system/src/index.tsx"
+      ],
+      "@ui/design-system/*": [
+        "../../packages/foundation/design-system/src/*"
+      ]
     }
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "../../packages/foundation/ui-dsl"
+    },
+    {
+      "path": "../../packages/foundation/design-system"
+    }
+  ]
 }

@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DrizzleUserRepository } from '@adapters/db-drizzle/repositories/UserRepository.js';
 import { User } from '@foundation/auth-suite/domain/entities/User.js';
-import { PostgresClient } from '@foundation/db/client.js';
 
 // Mock database client for testing
 const createMockDBClient = () => ({

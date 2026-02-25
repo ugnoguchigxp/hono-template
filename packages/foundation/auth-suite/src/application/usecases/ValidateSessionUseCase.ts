@@ -1,4 +1,4 @@
-import { AuthError, NotFoundError } from '@foundation/app-core/errors.js';
+import { AuthError, NotFoundError } from '@foundation/app-core/errors';
 import type { Session, User } from '../../domain/index.js';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import type { ISessionStore, ITokenGenerator, IUserRepository } from '../ports.js';
@@ -17,7 +17,7 @@ export class ValidateSessionUseCase {
     private readonly sessionStore: ISessionStore,
     private readonly userRepository: IUserRepository,
     private readonly tokenGenerator: ITokenGenerator
-  ) {}
+  ) { }
 
   async execute(input: ValidateSessionInput): Promise<ValidateSessionOutput> {
     const isValidToken = await this.tokenGenerator.verifyToken(input.token);

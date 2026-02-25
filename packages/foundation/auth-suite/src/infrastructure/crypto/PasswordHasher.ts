@@ -1,5 +1,5 @@
 import * as argon2 from '@node-rs/argon2';
-import type { IPasswordHasher } from '../application/ports.js';
+import type { IPasswordHasher } from '../../application/ports.js';
 
 export class Argon2PasswordHasher implements IPasswordHasher {
   async hash(password: string): Promise<string> {

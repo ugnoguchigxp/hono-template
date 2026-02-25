@@ -1,4 +1,4 @@
-import type { ITokenGenerator } from '../application/ports.js';
+import type { ITokenGenerator } from '../../application/ports.js';
 
 export class CryptoTokenGenerator implements ITokenGenerator {
   private readonly tokenLength: number;

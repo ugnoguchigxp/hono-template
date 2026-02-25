@@ -1,6 +1,5 @@
-import { InfraError } from '@foundation/app-core/errors.js';
-import type { ISessionStore } from '../application/ports.js';
-import type { Session, SessionToken } from '../domain/index.js';
+import type { ISessionStore } from '../../application/ports.js';
+import type { Session } from '../../domain/index.js';
 
 interface SessionData {
   session: Session;
@@ -11,7 +10,7 @@ export class MemorySessionStore implements ISessionStore {
   private sessions = new Map<string, SessionData>();
   private cleanupInterval: NodeJS.Timeout;
 
-  constructor(private readonly ttlMs: number = 24 * 60 * 60 * 1000) {
+  constructor(_ttlMs: number = 24 * 60 * 60 * 1000) {
     // Clean up expired sessions every hour
     this.cleanupInterval = setInterval(
       () => {
@@ -21,14 +20,14 @@ export class MemorySessionStore implements ISessionStore {
     );
   }
 
-  async findByToken(token: SessionToken): Promise<Session | null> {
-    const data = this.sessions.get(token.raw);
+  async findByToken(token: string): Promise<Session | null> {
+    const data = this.sessions.get(token);
     if (!data) {
       return null;
     }
 
     if (Date.now() > data.expiresAt) {
-      this.sessions.delete(token.raw);
+      this.sessions.delete(token);
       return null;
     }
 
@@ -55,8 +54,8 @@ export class MemorySessionStore implements ISessionStore {
     return session;
   }
 
-  async delete(token: SessionToken): Promise<void> {
-    this.sessions.delete(token.raw);
+  async delete(token: string): Promise<void> {
+    this.sessions.delete(token);
   }
 
   async deleteByUserId(userId: string): Promise<void> {

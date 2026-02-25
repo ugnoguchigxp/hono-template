@@ -5,6 +5,18 @@
     "rootDir": "./",
     "composite": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist", "node_modules", "tests", "migrations"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "tests",
+    "migrations"
+  ],
+  "references": [
+    {
+      "path": "../app-core"
+    }
+  ]
 }

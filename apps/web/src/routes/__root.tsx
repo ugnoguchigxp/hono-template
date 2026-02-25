@@ -1,8 +1,6 @@
 import { createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
-import { Button } from '@gxp/design-system';
-import { bbsIndexRoute } from '../domain/bbs/BbsIndexRoute.js';
-import { bbsDetailRoute } from '../domain/bbs/BbsDetailRoute.js';
-import { MessageSquare } from 'lucide-react';
+import { Button } from '@ui/design-system';
+
 
 export const rootRoute = createRootRoute({
   component: () => (
@@ -16,13 +14,7 @@ export const rootRoute = createRootRoute({
                 <a href="/">Home</a>
               </Button>
               <Button variant="ghost" asChild>
-                <a href="/auth">Auth</a>
-              </Button>
-              <Button variant="ghost" asChild className="flex items-center gap-2 text-blue-600 font-medium">
-                <a href="/bbs">
-                  <MessageSquare size={16} />
-                  BBS
-                </a>
+                <a href="/chat">Chat</a>
               </Button>
             </nav>
           </div>
@@ -46,10 +38,10 @@ const indexRoute = createRoute({
           A clean architecture monorepo with Hono, React, and modern tooling.
         </p>
         <Button asChild>
-          <a href="/auth">Get Started</a>
+          <a href="/chat">Get Started</a>
         </Button>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-2">Backend</h3>
@@ -60,7 +52,7 @@ const indexRoute = createRoute({
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-2">Frontend</h3>
           <p className="text-gray-600 text-sm">
-            React + TanStack Query/Router + gxp-design-system
+            React + TanStack Query/Router + @ui/design-system
           </p>
         </div>
       </div>
@@ -91,4 +83,17 @@ const authRoute = createRoute({
   ),
 });
 
-export const routeTree = rootRoute.addChildren([indexRoute, authRoute, bbsIndexRoute, bbsDetailRoute]);
+import { ChatStream } from '../features/chat';
+
+const chatRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/chat',
+  component: () => (
+    <div className="w-full max-w-5xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">AI Assistant</h2>
+      <ChatStream />
+    </div>
+  ),
+});
+
+export const routeTree = rootRoute.addChildren([indexRoute, authRoute, chatRoute]);

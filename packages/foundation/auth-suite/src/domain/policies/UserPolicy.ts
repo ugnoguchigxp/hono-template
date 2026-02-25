@@ -1,5 +1,5 @@
-import { DomainError } from '@foundation/app-core/errors.js';
-import type { User } from '../contracts.js';
+import { DomainError } from '@foundation/app-core/errors';
+import type { User } from '../../contracts.js';
 
 export class UserPolicy {
   static validateRegistrationData(data: {
@@ -24,7 +24,8 @@ export class UserPolicy {
       throw new DomainError('Last name is required');
     }
 
-    if (data.password.includes(data.email.split('@')[0])) {
+    const emailPrefix = data.email?.split('@')[0];
+    if (emailPrefix && data.password.includes(emailPrefix)) {
       throw new DomainError('Password cannot contain email username');
     }
   }

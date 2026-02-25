@@ -1,4 +1,4 @@
-import { AuthError } from '@foundation/app-core/errors.js';
+
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import { User as UserEntity } from '../../domain/entities/User.js';
@@ -33,7 +33,7 @@ export class ExternalAuthUseCase {
     private readonly tokenGenerator: ITokenGenerator,
     private readonly auditLogger: IAuditLogger,
     private readonly sessionTtlSeconds: number
-  ) {}
+  ) { }
 
   async execute(input: ExternalAuthInput): Promise<ExternalAuthOutput> {
     // 1. Check if external account already exists
@@ -66,12 +66,15 @@ export class ExternalAuthUseCase {
     );
 
     if (!isAlreadyLinked) {
-      const newAccount = ExternalAccount.create({
+      const newAccountData: any = {
         userId: user.getId(),
         provider: input.provider,
         externalId: input.externalId,
-        email: input.email ?? undefined,
-      });
+      };
+      if (input.email) {
+        newAccountData.email = input.email;
+      }
+      const newAccount = ExternalAccount.create(newAccountData);
       user = user.addExternalAccount(newAccount);
       // This will now persist both the user and the new external account link
       await this.userRepository.save(user);

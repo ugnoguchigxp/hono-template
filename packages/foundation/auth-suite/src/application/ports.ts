@@ -1,4 +1,4 @@
-import type { Email, Role, RoleId, Session, SessionToken, User, UserId } from '../contracts.js';
+import type { Email, RoleId, SessionToken, UserId } from '../contracts.js';
 import type {
   Role as RoleEntity,
   Session as SessionEntity,

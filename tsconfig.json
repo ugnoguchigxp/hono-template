@@ -1,0 +1,50 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "composite": true,
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ]
+    },
+    "files": [],
+    "references": [
+        {
+            "path": "./packages/foundation/app-core"
+        },
+        {
+            "path": "./packages/foundation/auth-suite"
+        },
+        {
+            "path": "./packages/foundation/contracts"
+        },
+        {
+            "path": "./packages/foundation/db"
+        },
+        {
+            "path": "./packages/foundation/design-system"
+        },
+        {
+            "path": "./packages/foundation/ui-dsl"
+        },
+        {
+            "path": "./packages/foundation/schema-registry"
+        },
+        {
+            "path": "./packages/domains/chat"
+        },
+        {
+            "path": "./packages/adapters/db-drizzle"
+        },
+        {
+            "path": "./packages/adapters/http-hono"
+        },
+        {
+            "path": "./apps/api"
+        },
+        {
+            "path": "./apps/web"
+        }
+    ]
+}

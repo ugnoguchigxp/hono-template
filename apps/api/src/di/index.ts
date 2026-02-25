@@ -2,8 +2,6 @@ import {
   DrizzleAuditLogger,
   DrizzleSessionStore,
   DrizzleUserRepository,
-  DrizzleThreadRepository,
-  DrizzleCommentRepository,
 } from '@adapters/db-drizzle/index.js';
 import { Config } from '@foundation/app-core/config.js';
 import { DIKeys, createContainer } from '@foundation/app-core/di/index.js';
@@ -24,12 +22,7 @@ import {
 import { createDBClient } from '@foundation/db/client.js';
 import type { DBClient } from '@foundation/db/index.js';
 import { createTransactionManager } from '@foundation/db/transaction/index.js';
-import {
-  CreateThreadUseCase,
-  GetThreadDetailUseCase,
-  ListThreadsUseCase,
-  PostCommentUseCase,
-} from '@domains/bbs';
+
 import type { Container } from '@foundation/app-core/types.js';
 import {
   GoogleOAuthClient,
@@ -71,15 +64,13 @@ export function resolveHonoDependencies(container: Container) {
   const config = container.resolve<Config>(DIKeys.Config);
   const logger = container.resolve<Logger>(DIKeys.Logger);
   const dbClient = container.resolve<DBClient>(DIKeys.DatabaseClient);
-  
+
   const passwordHasher = createPasswordHasher();
   const tokenGenerator = createTokenGenerator();
   const auditLogger = new DrizzleAuditLogger(dbClient, logger);
   const userRepository = new DrizzleUserRepository(dbClient);
   const sessionStore = new DrizzleSessionStore(dbClient);
-  
-  const threadRepository = new DrizzleThreadRepository(dbClient);
-  const commentRepository = new DrizzleCommentRepository(dbClient);
+
 
   const sessionTtl = config.get('SESSION_TTL');
 
@@ -146,9 +137,5 @@ export function resolveHonoDependencies(container: Container) {
       sessionTtl
     ),
     oauthClients,
-    listThreadsUseCase: new ListThreadsUseCase(threadRepository),
-    createThreadUseCase: new CreateThreadUseCase(threadRepository),
-    getThreadDetailUseCase: new GetThreadDetailUseCase(threadRepository, commentRepository),
-    postCommentUseCase: new PostCommentUseCase(threadRepository, commentRepository),
   };
 }

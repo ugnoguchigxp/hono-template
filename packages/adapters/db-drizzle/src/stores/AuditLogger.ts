@@ -7,7 +7,7 @@ export class DrizzleAuditLogger implements IAuditLogger {
   constructor(
     private readonly db: DBClient,
     private readonly logger: Logger
-  ) {}
+  ) { }
 
   async logUserLogin(userId: string, ipAddress?: string, userAgent?: string): Promise<void> {
     try {
@@ -15,9 +15,9 @@ export class DrizzleAuditLogger implements IAuditLogger {
         userId,
         action: 'LOGIN',
         resource: 'AUTH',
-        ipAddress,
-        userAgent,
-        details: { timestamp: new Date().toISOString() },
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+        metadata: JSON.stringify({ timestamp: new Date().toISOString() }),
       });
 
       this.logger.info('User login audit log created', {
@@ -40,9 +40,9 @@ export class DrizzleAuditLogger implements IAuditLogger {
         userId,
         action: 'LOGOUT',
         resource: 'AUTH',
-        ipAddress,
-        userAgent,
-        details: { timestamp: new Date().toISOString() },
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+        metadata: JSON.stringify({ timestamp: new Date().toISOString() }),
       });
 
       this.logger.info('User logout audit log created', {
@@ -64,9 +64,9 @@ export class DrizzleAuditLogger implements IAuditLogger {
         userId,
         action: 'REGISTRATION',
         resource: 'AUTH',
-        ipAddress,
-        userAgent,
-        details: { timestamp: new Date().toISOString() },
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+        metadata: JSON.stringify({ timestamp: new Date().toISOString() }),
       });
 
       this.logger.info('User registration audit log created', {
@@ -88,9 +88,9 @@ export class DrizzleAuditLogger implements IAuditLogger {
         userId,
         action: 'PASSWORD_CHANGE',
         resource: 'AUTH',
-        ipAddress,
-        userAgent,
-        details: { timestamp: new Date().toISOString() },
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+        metadata: JSON.stringify({ timestamp: new Date().toISOString() }),
       });
 
       this.logger.info('Password change audit log created', {
@@ -111,12 +111,12 @@ export class DrizzleAuditLogger implements IAuditLogger {
       await this.db.insert(auditLogs).values({
         action: 'FAILED_LOGIN',
         resource: 'AUTH',
-        ipAddress,
-        userAgent,
-        details: {
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+        metadata: JSON.stringify({
           email,
           timestamp: new Date().toISOString(),
-        },
+        }),
       });
 
       this.logger.warn('Failed login attempt audit log created', {

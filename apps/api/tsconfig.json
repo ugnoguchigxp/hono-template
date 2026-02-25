@@ -4,6 +4,32 @@
     "outDir": "./dist",
     "composite": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist", "node_modules", "tests"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "tests"
+  ],
+  "references": [
+    {
+      "path": "../../packages/adapters/http-hono"
+    },
+    {
+      "path": "../../packages/adapters/db-drizzle"
+    },
+    {
+      "path": "../../packages/foundation/app-core"
+    },
+    {
+      "path": "../../packages/foundation/auth-suite"
+    },
+    {
+      "path": "../../packages/foundation/db"
+    },
+    {
+      "path": "../../packages/foundation/contracts"
+    }
+  ]
 }

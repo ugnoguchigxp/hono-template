@@ -1,22 +1,30 @@
 import type { RegisterUserUseCase } from '@foundation/auth-suite/application/usecases/RegisterUserUseCase.js';
 import { RegisterRequestSchema, UserResponseSchema } from '@foundation/contracts/api/index.js';
-import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 
 export function createRegisterHandler(registerUserUseCase: RegisterUserUseCase) {
-  return zValidator('json', RegisterRequestSchema, async (c, next) => {
-    const body = c.req.valid('json');
-    const logger = c.get('logger');
+  return async (c: Context) => {
+    const rawBody = await c.req.json();
+    const parsed = RegisterRequestSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return c.json({ error: parsed.error }, 400);
+    }
+    const body = parsed.data;
+    const logger = c.get('logger') as any;
 
     try {
-      const result = await registerUserUseCase.execute({
+      const input: any = {
         email: body.email,
         password: body.password,
         firstName: body.firstName,
         lastName: body.lastName,
-        ipAddress: c.req.header('x-forwarded-for') || c.req.header('x-real-ip'),
-        userAgent: c.req.header('user-agent'),
-      });
+      };
+      const ip = c.req.header('x-forwarded-for') || c.req.header('x-real-ip');
+      const ua = c.req.header('user-agent');
+      if (ip) input.ipAddress = ip;
+      if (ua) input.userAgent = ua;
+      
+      const result = await registerUserUseCase.execute(input);
 
       const response = UserResponseSchema.parse({
         id: result.user.getData().id,
@@ -35,8 +43,7 @@ export function createRegisterHandler(registerUserUseCase: RegisterUserUseCase) 
 
       return c.json(response, 201);
     } catch (error) {
-      await next();
       throw error;
     }
-  });
+  };
 }

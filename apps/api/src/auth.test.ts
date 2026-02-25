@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { Hono } from 'hono';
+
 import { createHonoApp } from '@adapters/http-hono/index.js';
 
 describe('Authentication Endpoints', () => {
-  let app: Hono;
+  let app: ReturnType<typeof createHonoApp>;
 
   beforeAll(async () => {
     // Note: This would require a test database setup
@@ -15,13 +15,16 @@ describe('Authentication Endpoints', () => {
       registerUserUseCase: null as any,
       validateSessionUseCase: null as any,
       logoutUseCase: null as any,
+      verifyMfaUseCase: null as any,
+      externalAuthUseCase: null as any,
+      oauthClients: new Map(),
     });
   });
 
   it('should have health check endpoint', async () => {
     const response = await app.request('/health');
     expect(response.status).toBe(200);
-    
+
     const body = await response.json();
     expect(body).toHaveProperty('status', 'healthy');
     expect(body).toHaveProperty('timestamp');

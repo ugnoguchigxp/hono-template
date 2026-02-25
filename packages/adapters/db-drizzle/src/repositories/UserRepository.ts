@@ -3,10 +3,10 @@ import { User as UserEntity } from '@foundation/auth-suite/domain/entities/User.
 import type { DBClient } from '@foundation/db/types.js';
 import { and, eq } from 'drizzle-orm';
 import { users, userExternalAccounts } from '../schema/index.js';
-import { ExternalAccount } from '@foundation/auth-suite/domain/entities/ExternalAccount.js';
+
 
 export class DrizzleUserRepository implements IUserRepository {
-  constructor(private readonly db: DBClient) {}
+  constructor(private readonly db: DBClient) { }
 
   async findById(id: string): Promise<UserEntity | null> {
     const result = await this.db.query.users.findFirst({

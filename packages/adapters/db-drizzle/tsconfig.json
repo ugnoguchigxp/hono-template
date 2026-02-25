@@ -5,6 +5,23 @@
     "rootDir": "./",
     "composite": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist", "node_modules", "tests"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "tests"
+  ],
+  "references": [
+    {
+      "path": "../../foundation/app-core"
+    },
+    {
+      "path": "../../foundation/auth-suite"
+    },
+    {
+      "path": "../../foundation/db"
+    }
+  ]
 }

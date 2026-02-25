@@ -1,4 +1,4 @@
-import { AuthError } from '@foundation/app-core/errors.js';
+import { AuthError } from '@foundation/app-core/errors';
 import { LoginCredentialsSchema } from '../../contracts.js';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
@@ -31,7 +31,7 @@ export class LoginUseCase {
     private readonly tokenGenerator: ITokenGenerator,
     private readonly auditLogger: IAuditLogger,
     private readonly sessionTtlSeconds: number
-  ) {}
+  ) { }
 
   async execute(input: LoginInput): Promise<LoginOutput> {
     const credentials = LoginCredentialsSchema.parse({

@@ -37,6 +37,8 @@ describe('User Entity', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         lastLoginAt: null,
+        mfaEnabled: false,
+        mfaSecret: null,
       };
 
       const user = User.reconstruct(userData);
@@ -82,9 +84,9 @@ describe('User Entity', () => {
     it('should update user name', () => {
       const newFirstName = FirstName.create('Jane');
       const newLastName = LastName.create('Smith');
-      
+
       const updatedUser = user.updateName(newFirstName.raw, newLastName.raw);
-      
+
       expect(updatedUser.getFirstName()).toBe(newFirstName.raw);
       expect(updatedUser.getLastName()).toBe(newLastName.raw);
     });

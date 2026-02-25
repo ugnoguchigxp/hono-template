@@ -7,12 +7,7 @@ import type {
   VerifyMfaUseCase,
   ExternalAuthUseCase,
 } from '@foundation/auth-suite/application/index.js';
-import type {
-  CreateThreadUseCase,
-  GetThreadDetailUseCase,
-  ListThreadsUseCase,
-  PostCommentUseCase,
-} from '@domains/bbs';
+
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { poweredBy } from 'hono/powered-by';
@@ -29,12 +24,7 @@ import {
   createOAuthLoginHandler,
   createOAuthCallbackHandler,
 } from './handlers/index.js';
-import {
-  createCreateThreadHandler,
-  createListThreadsHandler,
-  createPostCommentHandler,
-  createThreadDetailHandler,
-} from './handlers/bbs.js';
+
 import {
   authMiddleware,
   createZodErrorHandler,
@@ -52,10 +42,6 @@ export interface HonoAppDependencies {
   verifyMfaUseCase: VerifyMfaUseCase;
   externalAuthUseCase: ExternalAuthUseCase;
   oauthClients: Map<string, IOAuthClient>;
-  listThreadsUseCase: ListThreadsUseCase;
-  createThreadUseCase: CreateThreadUseCase;
-  getThreadDetailUseCase: GetThreadDetailUseCase;
-  postCommentUseCase: PostCommentUseCase;
 }
 export type AppEnv = {
   Variables: {
@@ -117,19 +103,6 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono<AppEnv> {
   const apiV1 = new Hono<AppEnv>();
   apiV1.route('/auth', authRoutes);
 
-  // BBS routes
-  const bbsRoutes = new Hono<AppEnv>();
-  bbsRoutes.get('/threads', createListThreadsHandler(dependencies.listThreadsUseCase));
-  bbsRoutes.get('/threads/:id', createThreadDetailHandler(dependencies.getThreadDetailUseCase));
-  
-  // Protected BBS routes
-  const protectedBbs = new Hono<AppEnv>();
-  protectedBbs.use('*', authMiddleware(dependencies.validateSessionUseCase));
-  protectedBbs.post('/threads', createCreateThreadHandler(dependencies.createThreadUseCase));
-  protectedBbs.post('/threads/:id/comments', createPostCommentHandler(dependencies.postCommentUseCase));
-  
-  bbsRoutes.route('/', protectedBbs);
-  apiV1.route('/bbs', bbsRoutes);
 
   app.route('/api/v1', apiV1);
 

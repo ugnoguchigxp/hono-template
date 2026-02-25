@@ -53,7 +53,7 @@ describe('RegisterUserUseCase', () => {
     mockUserRepo = createMockUserRepository();
     mockPasswordHasher = createMockPasswordHasher();
     mockAuditLogger = createMockAuditLogger();
-    
+
     useCase = new RegisterUserUseCase(mockUserRepo, mockPasswordHasher, mockAuditLogger);
   });
 
@@ -117,7 +117,7 @@ describe('LoginUseCase', () => {
     mockPasswordHasher = createMockPasswordHasher();
     mockTokenGenerator = createMockTokenGenerator();
     mockAuditLogger = createMockAuditLogger();
-    
+
     useCase = new LoginUseCase(
       mockUserRepo,
       mockSessionStore,
@@ -155,6 +155,8 @@ describe('LoginUseCase', () => {
     mockSessionStore.save.mockResolvedValue(mockSession);
 
     const result = await useCase.execute(loginData);
+
+    if (result.type !== 'SUCCESS') throw new Error('Expected SUCCESS');
 
     expect(result.user.getId()).toBe(mockUser.getId());
     expect(result.user.getLastLoginAt()).toBeDefined();

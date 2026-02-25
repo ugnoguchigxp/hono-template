@@ -18,8 +18,8 @@ export class PostgresClient implements DBClient {
 
   async rawQuery<T = unknown>(sql: string, params: unknown[] = []): Promise<T[]> {
     try {
-      const result = await this.client.unsafe(sql, params);
-      return result as T[];
+      const result = await this.client.unsafe(sql, params as any[]);
+      return result as unknown as T[];
     } catch (error) {
       throw new Error(`Query failed: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -31,9 +31,9 @@ export class PostgresClient implements DBClient {
   }
 
   async transaction<T>(
-    callback: (tx: import('../types.js').Transaction) => Promise<T>
+    callback: (tx: import('./types.js').Transaction) => Promise<T>
   ): Promise<T> {
-    return this.db.transaction(callback);
+    return this.db.transaction(callback as any);
   }
 
   getDrizzleDB() {

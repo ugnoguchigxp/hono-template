@@ -1,5 +1,6 @@
-import { authenticator } from 'otplib';
-import { AuthError } from '@foundation/app-core/errors.js';
+import * as otplib from 'otplib';
+const authenticator = (otplib as any).authenticator || (otplib as any).default?.authenticator || (otplib as any);
+import { AuthError } from '@foundation/app-core/errors';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import type { User } from '../../domain/index.js';
@@ -30,7 +31,7 @@ export class VerifyMfaUseCase {
     private readonly tokenGenerator: ITokenGenerator,
     private readonly auditLogger: IAuditLogger,
     private readonly sessionTtlSeconds: number
-  ) {}
+  ) { }
 
   async execute(input: VerifyMfaInput): Promise<VerifyMfaOutput> {
     const user = await this.userRepository.findById(input.userId);

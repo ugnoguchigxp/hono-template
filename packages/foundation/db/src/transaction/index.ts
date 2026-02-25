@@ -1,10 +1,10 @@
 import type { Transaction, TransactionManager } from '../types.js';
 
 export class DrizzleTransactionManager implements TransactionManager {
-  constructor(private db: import('drizzle-orm').PostgresJsDatabase) {}
+  constructor(private db: import('drizzle-orm/postgres-js').PostgresJsDatabase<typeof import('../schema/index.js') >) { }
 
   async execute<T>(callback: (tx: Transaction) => Promise<T>): Promise<T> {
-    return this.db.transaction(callback);
+    return this.db.transaction(callback as any);
   }
 
   async withTransaction<T>(callback: (tx: Transaction) => Promise<T>): Promise<T> {
@@ -13,7 +13,7 @@ export class DrizzleTransactionManager implements TransactionManager {
 }
 
 export function createTransactionManager(
-  db: import('drizzle-orm').PostgresJsDatabase
+  db: import('drizzle-orm/postgres-js').PostgresJsDatabase<typeof import('../schema/index.js') >
 ): TransactionManager {
   return new DrizzleTransactionManager(db);
 }
