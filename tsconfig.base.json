@@ -3,9 +3,7 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "lib": [
-      "ES2022"
-    ],
+    "lib": ["ES2022"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitReturns": true,
@@ -23,89 +21,33 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@foundation/app-core": [
-        "./packages/foundation/app-core/src/index.ts"
-      ],
-      "@foundation/app-core/di.js": [
-        "./packages/foundation/app-core/src/di/index.ts"
-      ],
-      "@foundation/app-core/config.js": [
-        "./packages/foundation/app-core/src/config/index.ts"
-      ],
-      "@foundation/app-core/logger.js": [
-        "./packages/foundation/app-core/src/logger/index.ts"
-      ],
-      "@foundation/app-core/errors.js": [
-        "./packages/foundation/app-core/src/errors/index.ts"
-      ],
-      "@foundation/app-core/errors": [
-        "./packages/foundation/app-core/src/errors/index.ts"
-      ],
-      "@foundation/app-core/context.js": [
-        "./packages/foundation/app-core/src/context/index.ts"
-      ],
-      "@foundation/app-core/*": [
-        "./packages/foundation/app-core/src/*"
-      ],
-      "@foundation/auth-suite": [
-        "./packages/foundation/auth-suite/src"
-      ],
-      "@foundation/auth-suite/*": [
-        "./packages/foundation/auth-suite/src/*"
-      ],
-      "@foundation/db": [
-        "./packages/foundation/db/src"
-      ],
-      "@foundation/db/*": [
-        "./packages/foundation/db/src/*"
-      ],
-      "@foundation/contracts": [
-        "./packages/foundation/contracts/src"
-      ],
-      "@foundation/contracts/*": [
-        "./packages/foundation/contracts/src/*"
-      ],
-      "@adapters/http-hono": [
-        "./packages/adapters/http-hono/src"
-      ],
-      "@adapters/http-hono/*": [
-        "./packages/adapters/http-hono/src/*"
-      ],
-      "@adapters/db-drizzle": [
-        "./packages/adapters/db-drizzle/src"
-      ],
-      "@adapters/db-drizzle/*": [
-        "./packages/adapters/db-drizzle/src/*"
-      ],
-      "@domains/chat": [
-        "./packages/domains/chat/src"
-      ],
-      "@domains/chat/*": [
-        "./packages/domains/chat/src/*"
-      ],
-      "@foundation/ui-dsl": [
-        "./packages/foundation/ui-dsl/src"
-      ],
-      "@foundation/ui-dsl/*": [
-        "./packages/foundation/ui-dsl/src/*"
-      ],
-      "@foundation/schema-registry": [
-        "./packages/foundation/schema-registry/src"
-      ],
-      "@foundation/schema-registry/*": [
-        "./packages/foundation/schema-registry/src/*"
-      ],
-      "@ui/design-system": [
-        "./packages/foundation/design-system/src"
-      ],
-      "@ui/design-system/*": [
-        "./packages/foundation/design-system/src/*"
-      ]
+      "@foundation/app-core": ["./packages/foundation/app-core/src/index.ts"],
+      "@foundation/app-core/di.js": ["./packages/foundation/app-core/src/di/index.ts"],
+      "@foundation/app-core/config.js": ["./packages/foundation/app-core/src/config/index.ts"],
+      "@foundation/app-core/logger.js": ["./packages/foundation/app-core/src/logger/index.ts"],
+      "@foundation/app-core/errors.js": ["./packages/foundation/app-core/src/errors/index.ts"],
+      "@foundation/app-core/errors": ["./packages/foundation/app-core/src/errors/index.ts"],
+      "@foundation/app-core/context.js": ["./packages/foundation/app-core/src/context/index.ts"],
+      "@foundation/app-core/*": ["./packages/foundation/app-core/src/*"],
+      "@foundation/auth-suite": ["./packages/foundation/auth-suite/src"],
+      "@foundation/auth-suite/*": ["./packages/foundation/auth-suite/src/*"],
+      "@foundation/db": ["./packages/foundation/db/src"],
+      "@foundation/db/*": ["./packages/foundation/db/src/*"],
+      "@foundation/contracts": ["./packages/foundation/contracts/src"],
+      "@foundation/contracts/*": ["./packages/foundation/contracts/src/*"],
+      "@adapters/http-hono": ["./packages/adapters/http-hono/src"],
+      "@adapters/http-hono/*": ["./packages/adapters/http-hono/src/*"],
+      "@adapters/db-drizzle": ["./packages/adapters/db-drizzle/src"],
+      "@adapters/db-drizzle/*": ["./packages/adapters/db-drizzle/src/*"],
+      "@domains/chat": ["./packages/domains/chat/src"],
+      "@domains/chat/*": ["./packages/domains/chat/src/*"],
+      "@foundation/ui-dsl": ["./packages/foundation/ui-dsl/src"],
+      "@foundation/ui-dsl/*": ["./packages/foundation/ui-dsl/src/*"],
+      "@foundation/schema-registry": ["./packages/foundation/schema-registry/src"],
+      "@foundation/schema-registry/*": ["./packages/foundation/schema-registry/src/*"],
+      "@ui/design-system": ["./packages/foundation/design-system/src"],
+      "@ui/design-system/*": ["./packages/foundation/design-system/src/*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ]
+  "exclude": ["node_modules", "dist", "build"]
 }

@@ -4,7 +4,7 @@ import {
   PasswordHash as PasswordHashVO,
   UserId as UserIdVO,
 } from '../value-objects/index.js';
-import { ExternalAccount } from './ExternalAccount.js';
+import type { ExternalAccount } from './ExternalAccount.js';
 
 export class User {
   private readonly id: UserIdVO;

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-
 import { createHonoApp } from '@adapters/http-hono/index.js';
+
+import { AuthError } from '@foundation/app-core/errors.js';
 
 describe('Authentication Endpoints', () => {
   let app: ReturnType<typeof createHonoApp>;
@@ -8,12 +9,33 @@ describe('Authentication Endpoints', () => {
   beforeAll(async () => {
     // Note: This would require a test database setup
     // For now, we'll test the endpoint structure
+    const mockLogger = {
+      info: () => {},
+      warn: () => {},
+      error: () => {},
+      debug: () => {},
+      child: function () { return this; },
+    };
+
+    const mockContainer = {
+      has: () => true,
+      resolve: () => ({
+        rawQuery: async () => {},
+      }),
+    };
+
+    const mockValidateSessionUseCase = {
+      execute: async () => {
+        throw new AuthError('Invalid session token');
+      },
+    };
+
     app = createHonoApp({
-      container: null as any,
-      logger: console as any,
+      container: mockContainer as any,
+      logger: mockLogger as any,
       loginUseCase: null as any,
       registerUserUseCase: null as any,
-      validateSessionUseCase: null as any,
+      validateSessionUseCase: mockValidateSessionUseCase as any,
       logoutUseCase: null as any,
       verifyMfaUseCase: null as any,
       externalAuthUseCase: null as any,
@@ -38,7 +60,7 @@ describe('Authentication Endpoints', () => {
       lastName: '',
     };
 
-    const response = await app.request('/auth/register', {
+    const response = await app.request('/api/v1/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(invalidData),
@@ -55,7 +77,7 @@ describe('Authentication Endpoints', () => {
       password: '',
     };
 
-    const response = await app.request('/auth/login', {
+    const response = await app.request('/api/v1/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(invalidData),
@@ -67,7 +89,7 @@ describe('Authentication Endpoints', () => {
   });
 
   it('should return 401 for invalid session token', async () => {
-    const response = await app.request('/auth/me', {
+    const response = await app.request('/api/v1/auth/me', {
       headers: { 'Authorization': 'Bearer invalid-token' },
     });
 

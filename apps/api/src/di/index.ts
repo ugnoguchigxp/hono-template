@@ -8,12 +8,12 @@ import { DIKeys, createContainer } from '@foundation/app-core/di/index.js';
 import { createLogger } from '@foundation/app-core/logger.js';
 import type { Logger } from '@foundation/app-core/types.js';
 import {
+  ExternalAuthUseCase,
   LoginUseCase,
   LogoutUseCase,
   RegisterUserUseCase,
   ValidateSessionUseCase,
   VerifyMfaUseCase,
-  ExternalAuthUseCase,
 } from '@foundation/auth-suite/application/index.js';
 import {
   createPasswordHasher,
@@ -24,15 +24,15 @@ import type { DBClient } from '@foundation/db/index.js';
 import { createTransactionManager } from '@foundation/db/transaction/index.js';
 
 import type { Container } from '@foundation/app-core/types.js';
+import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
 import {
-  GoogleOAuthClient,
   GitHubOAuthClient,
+  GoogleOAuthClient,
   MSALOAuthClient,
 } from '@foundation/auth-suite/infrastructure/oauth/index.js';
-import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
 
 export function bootstrapDI(): Container {
-  // Config handles environment variables internally, 
+  // Config handles environment variables internally,
   // but we pass process.env to be explicit if needed by some platforms.
   const config = new Config(process.env as Record<string, string>);
   const logger = createLogger(config.get('LOG_LEVEL'));
@@ -70,7 +70,6 @@ export function resolveHonoDependencies(container: Container) {
   const auditLogger = new DrizzleAuditLogger(dbClient, logger);
   const userRepository = new DrizzleUserRepository(dbClient);
   const sessionStore = new DrizzleSessionStore(dbClient);
-
 
   const sessionTtl = config.get('SESSION_TTL');
 
@@ -120,7 +119,11 @@ export function resolveHonoDependencies(container: Container) {
       sessionTtl
     ),
     registerUserUseCase: new RegisterUserUseCase(userRepository, passwordHasher, auditLogger),
-    validateSessionUseCase: new ValidateSessionUseCase(sessionStore, userRepository, tokenGenerator),
+    validateSessionUseCase: new ValidateSessionUseCase(
+      sessionStore,
+      userRepository,
+      tokenGenerator
+    ),
     logoutUseCase: new LogoutUseCase(sessionStore, auditLogger),
     verifyMfaUseCase: new VerifyMfaUseCase(
       userRepository,

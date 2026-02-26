@@ -78,9 +78,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@foundation/ui-dsl':
-        specifier: workspace:^
-        version: link:../../packages/foundation/ui-dsl
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.71.0)
@@ -93,9 +90,6 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.20.6
         version: 8.21.3(react-dom@19.2.4)(react@19.2.4)
-      '@ui/design-system':
-        specifier: workspace:*
-        version: link:../../packages/foundation/design-system
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -242,25 +236,6 @@ importers:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@20.19.30)(jsdom@24.1.3)
 
-  packages/domains/chat:
-    dependencies:
-      '@foundation/contracts':
-        specifier: workspace:*
-        version: link:../../foundation/contracts
-      zod:
-        specifier: ^3.23.0
-        version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: ^20.10.0
-        version: 20.19.30
-      typescript:
-        specifier: ^5.3.0
-        version: 5.9.3
-      vitest:
-        specifier: ^1.2.0
-        version: 1.6.1(@types/node@20.19.30)(jsdom@24.1.3)
-
   packages/foundation/app-core:
     dependencies:
       pino:
@@ -269,6 +244,9 @@ importers:
       zod:
         specifier: ^3.22.0
         version: 3.25.76
+      zod-to-json-schema:
+        specifier: ^3.22.4
+        version: 3.25.1(zod@3.25.76)
     devDependencies:
       '@types/node':
         specifier: ^20.10.0
@@ -345,57 +323,6 @@ importers:
       drizzle-kit:
         specifier: ^0.20.0
         version: 0.20.18
-      typescript:
-        specifier: ^5.3.0
-        version: 5.9.3
-      vitest:
-        specifier: ^1.2.0
-        version: 1.6.1(@types/node@20.19.30)(jsdom@24.1.3)
-
-  packages/foundation/design-system:
-    dependencies:
-      react:
-        specifier: ^19.0.0
-        version: 19.2.4
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.2.4(react@19.2.4)
-    devDependencies:
-      '@types/react':
-        specifier: ^19.0.0
-        version: 19.2.10
-      '@types/react-dom':
-        specifier: ^19.0.0
-        version: 19.2.3(@types/react@19.2.10)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  packages/foundation/schema-registry:
-    dependencies:
-      zod:
-        specifier: ^3.23.0
-        version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: ^20.10.0
-        version: 20.19.30
-      typescript:
-        specifier: ^5.3.0
-        version: 5.9.3
-      vitest:
-        specifier: ^1.2.0
-        version: 1.6.1(@types/node@20.19.30)(jsdom@24.1.3)
-
-  packages/foundation/ui-dsl:
-    dependencies:
-      zod:
-        specifier: ^3.23.0
-        version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: ^20.10.0
-        version: 20.19.30
       typescript:
         specifier: ^5.3.0
         version: 5.9.3
@@ -4904,6 +4831,14 @@ packages:
     resolution: {integrity: sha512-4LCcse/U2MHZ63HAJVE+v71o7yOdIe4cZ70Wpf8D/IyjDKYQLV5GD46B+hSTjJsvV5PztjvHoU580EftxjDZFQ==}
     engines: {node: '>=12.20'}
     dev: true
+
+  /zod-to-json-schema@3.25.1(zod@3.25.76):
+    resolution: {integrity: sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==}
+    peerDependencies:
+      zod: ^3.25 || ^4
+    dependencies:
+      zod: 3.25.76
+    dev: false
 
   /zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}

@@ -32,9 +32,10 @@ describe('ListThreadsUseCase', () => {
     mockRepo.findAll.mockResolvedValue([thread1, thread2]);
 
     const result = await useCase.execute();
+    const threadItems = result.items.filter((item) => item.kind === 'Thread');
 
-    expect(result).toHaveLength(2);
-    expect(result[0].title).toBe('New');
-    expect(result[1].title).toBe('Old');
+    expect(threadItems).toHaveLength(2);
+    expect(threadItems[0].title).toBe('New');
+    expect(threadItems[1].title).toBe('Old');
   });
 });

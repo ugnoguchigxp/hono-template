@@ -1,11 +1,11 @@
 import type { Container, Logger } from '@foundation/app-core/types.js';
 import type {
+  ExternalAuthUseCase,
   LoginUseCase,
   LogoutUseCase,
   RegisterUserUseCase,
   ValidateSessionUseCase,
   VerifyMfaUseCase,
-  ExternalAuthUseCase,
 } from '@foundation/auth-suite/application/index.js';
 
 import { Hono } from 'hono';
@@ -19,18 +19,19 @@ import {
   createLoginHandler,
   createLogoutHandler,
   createMeHandler,
+  createOAuthCallbackHandler,
+  createOAuthLoginHandler,
   createRegisterHandler,
   createVerifyMfaHandler,
-  createOAuthLoginHandler,
-  createOAuthCallbackHandler,
 } from './handlers/index.js';
 
+import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
 import {
   authMiddleware,
   createZodErrorHandler,
+  featureFlagMiddleware,
   requestContextMiddleware,
 } from './middleware/index.js';
-import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
 
 export interface HonoAppDependencies {
   container: Container;
@@ -43,11 +44,17 @@ export interface HonoAppDependencies {
   externalAuthUseCase: ExternalAuthUseCase;
   oauthClients: Map<string, IOAuthClient>;
 }
+
+export type FeatureFlags = {
+  aiEnabled: boolean;
+};
+
 export type AppEnv = {
   Variables: {
     logger: Logger;
     container: Container;
-    user?: any; // Will be properly typed when needed
+    user?: unknown; // Will be properly typed when needed
+    featureFlags: FeatureFlags;
   };
 };
 
@@ -70,6 +77,7 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono<AppEnv> {
 
   // Global middleware
   app.use('*', requestContextMiddleware());
+  app.use('*', featureFlagMiddleware);
 
   // Error handling (Zod handler wraps generic one)
   app.onError(createZodErrorHandler());
@@ -102,7 +110,6 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono<AppEnv> {
   // API v1 routes
   const apiV1 = new Hono<AppEnv>();
   apiV1.route('/auth', authRoutes);
-
 
   app.route('/api/v1', apiV1);
 

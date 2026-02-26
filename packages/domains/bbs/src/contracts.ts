@@ -1,5 +1,5 @@
+import { IdSchema, withReferenceIntegrity } from '@foundation/contracts';
 import { z } from 'zod';
-import { IdSchema } from '@foundation/contracts';
 
 // Basic Types
 export const ThreadIdSchema = IdSchema.describe('Unique identifier for a thread');
@@ -40,11 +40,55 @@ export type CommentNode = Comment & {
   replies: CommentNode[];
 };
 
+const CommentNodeSchema: z.ZodType<CommentNode> = CommentSchema.extend({
+  replies: z.array(z.lazy(() => CommentNodeSchema)),
+});
+
 export const ThreadDetailSchema = ThreadSchema.extend({
-  comments: z.array(z.custom<CommentNode>()),
+  comments: z.array(CommentNodeSchema),
 });
 
 export type ThreadDetail = z.infer<typeof ThreadDetailSchema>;
+
+export const ThreadResourceSchema = ThreadSchema.extend({
+  kind: z.literal('Thread'),
+  commentIds: z.array(CommentIdSchema).default([]),
+});
+
+export type ThreadResource = z.infer<typeof ThreadResourceSchema>;
+
+export const CommentResourceSchema = CommentSchema.extend({
+  kind: z.literal('Comment'),
+  replyIds: z.array(CommentIdSchema).default([]),
+});
+
+export type CommentResource = z.infer<typeof CommentResourceSchema>;
+
+export const AnyBbsResourceSchema = z.discriminatedUnion('kind', [
+  ThreadResourceSchema,
+  CommentResourceSchema,
+]);
+
+export type AnyBbsResource = z.infer<typeof AnyBbsResourceSchema>;
+
+export const ThreadListResponseSchema = z.object({
+  items: z.array(AnyBbsResourceSchema),
+});
+
+export type ThreadListResponse = z.infer<typeof ThreadListResponseSchema>;
+
+export const BulkBbsRequestSchema = z
+  .object({
+    items: z.array(AnyBbsResourceSchema),
+  })
+  .superRefine((data, ctx) => {
+    withReferenceIntegrity<AnyBbsResource>((item: AnyBbsResource) => {
+      if (item.kind === 'Thread') return item.commentIds;
+      return item.replyIds;
+    })(data.items, ctx);
+  });
+
+export type BulkBbsRequest = z.infer<typeof BulkBbsRequestSchema>;
 
 // Input Schemas
 export const CreateThreadSchema = ThreadSchema.pick({

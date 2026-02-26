@@ -14,7 +14,7 @@ describe('GetThreadDetailUseCase', () => {
 
   const useCase = new GetThreadDetailUseCase(mockThreadRepo as any, mockCommentRepo as any);
 
-  it('should return thread detail with nested comment tree', async () => {
+  it('should return thread detail as a flat resource list', async () => {
     const threadId = randomUUID() as any;
     const authorId = randomUUID() as any;
     const thread = Thread.create({ id: threadId, title: 'Thread', authorId });
@@ -27,12 +27,26 @@ describe('GetThreadDetailUseCase', () => {
     mockCommentRepo.findByThreadId.mockResolvedValue([comment1, comment2, comment3]);
 
     const result = await useCase.execute(threadId);
+    const threadItem = result.items.find((item) => item.kind === 'Thread');
+    const c1 = result.items.find((item) => item.kind === 'Comment' && item.id === 'c1');
+    const c2 = result.items.find((item) => item.kind === 'Comment' && item.id === 'c2');
 
-    expect(result.id).toBe(threadId);
-    expect(result.comments).toHaveLength(2); // Two root comments
-    expect(result.comments[0].id).toBe('c1');
-    expect(result.comments[0].replies).toHaveLength(1);
-    expect(result.comments[0].replies[0].id).toBe('c2');
+    expect(threadItem).toBeDefined();
+    expect(threadItem?.id).toBe(threadId);
+    expect(threadItem?.kind).toBe('Thread');
+    if (threadItem?.kind === 'Thread') {
+      expect(threadItem.commentIds).toEqual(['c1', 'c3']);
+    }
+
+    expect(c1).toBeDefined();
+    if (c1?.kind === 'Comment') {
+      expect(c1.replyIds).toEqual(['c2']);
+    }
+
+    expect(c2).toBeDefined();
+    if (c2?.kind === 'Comment') {
+      expect(c2.replyIds).toEqual([]);
+    }
   });
 
   it('should throw NotFoundError if thread does not exist', async () => {

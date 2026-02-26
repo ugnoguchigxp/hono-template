@@ -1,5 +1,5 @@
-import type { IAuditLogger, ISessionStore } from '../ports.js';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
+import type { IAuditLogger, ISessionStore } from '../ports.js';
 
 export interface LogoutInput {
   token: string;

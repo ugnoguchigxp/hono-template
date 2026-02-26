@@ -1,17 +1,17 @@
+import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
+import type { ExternalAuthUseCase } from '@foundation/auth-suite/application/usecases/ExternalAuthUseCase.js';
 import type { LoginUseCase } from '@foundation/auth-suite/application/usecases/LoginUseCase.js';
 import type { VerifyMfaUseCase } from '@foundation/auth-suite/application/usecases/VerifyMfaUseCase.js';
-import type { ExternalAuthUseCase } from '@foundation/auth-suite/application/usecases/ExternalAuthUseCase.js';
-import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
 import {
   LoginRequestSchema,
-  LoginResponseSchema,
   OAuthCallbackRequestSchema,
   VerifyMfaRequestSchema,
 } from '@foundation/contracts/api/index.js';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
-import { setCookie, getCookie } from 'hono/cookie';
+import { getCookie, setCookie } from 'hono/cookie';
 import type { AppEnv } from '../index.js';
+import { toLoginResponse } from '../mappers/index.js';
 
 export function createLoginHandler(loginUseCase: LoginUseCase) {
   return zValidator('json', LoginRequestSchema, async (result, c: Context<AppEnv>) => {
@@ -40,17 +40,7 @@ export function createLoginHandler(loginUseCase: LoginUseCase) {
         );
       }
 
-      const response = LoginResponseSchema.parse({
-        type: 'SUCCESS',
-        token: loginResult.session.getData().token,
-        user: {
-          id: loginResult.user.getData().id,
-          email: loginResult.user.getData().email,
-          firstName: loginResult.user.getData().firstName,
-          lastName: loginResult.user.getData().lastName,
-        },
-        expiresAt: loginResult.session.getData().expiresAt.toISOString(),
-      });
+      const response = toLoginResponse(loginResult.user.getData(), loginResult.session.getData());
 
       logger.info('User logged in successfully', {
         userId: loginResult.user.getData().id,
@@ -58,8 +48,9 @@ export function createLoginHandler(loginUseCase: LoginUseCase) {
       });
 
       return c.json(response, 200);
-    } catch (error: any) {
-      logger.error('Login failed', { email: body.email, error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error('Login failed', { email: body.email, error: message });
       throw error;
     }
   });
@@ -81,17 +72,7 @@ export function createVerifyMfaHandler(verifyMfaUseCase: VerifyMfaUseCase) {
         userAgent: c.req.header('user-agent') || 'unknown',
       });
 
-      const response = LoginResponseSchema.parse({
-        type: 'SUCCESS',
-        token: verifyResult.session.getData().token,
-        user: {
-          id: verifyResult.user.getData().id,
-          email: verifyResult.user.getData().email,
-          firstName: verifyResult.user.getData().firstName,
-          lastName: verifyResult.user.getData().lastName,
-        },
-        expiresAt: verifyResult.session.getData().expiresAt.toISOString(),
-      });
+      const response = toLoginResponse(verifyResult.user.getData(), verifyResult.session.getData());
 
       logger.info('MFA verified successfully', {
         userId: verifyResult.user.getData().id,
@@ -99,8 +80,9 @@ export function createVerifyMfaHandler(verifyMfaUseCase: VerifyMfaUseCase) {
       });
 
       return c.json(response, 200);
-    } catch (error: any) {
-      logger.error('MFA verification failed', { userId: body.userId, error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error('MFA verification failed', { userId: body.userId, error: message });
       throw error;
     }
   });
@@ -161,17 +143,7 @@ export function createOAuthCallbackHandler(
         ...(userInfo.email ? { email: userInfo.email } : {}),
       });
 
-      const response = LoginResponseSchema.parse({
-        type: 'SUCCESS',
-        token: authResult.session.getData().token,
-        user: {
-          id: authResult.user.getData().id,
-          email: authResult.user.getData().email,
-          firstName: authResult.user.getData().firstName,
-          lastName: authResult.user.getData().lastName,
-        },
-        expiresAt: authResult.session.getData().expiresAt.toISOString(),
-      });
+      const response = toLoginResponse(authResult.user.getData(), authResult.session.getData());
 
       logger.info('OAuth login successful', {
         provider,
@@ -179,8 +151,9 @@ export function createOAuthCallbackHandler(
       });
 
       return c.json(response, 200);
-    } catch (error: any) {
-      logger.error('OAuth authentication failed', { provider, error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error('OAuth authentication failed', { provider, error: message });
       return c.json({ error: 'Authentication failed' }, 401);
     }
   });

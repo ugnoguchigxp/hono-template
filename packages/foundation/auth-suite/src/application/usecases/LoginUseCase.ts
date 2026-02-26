@@ -31,7 +31,7 @@ export class LoginUseCase {
     private readonly tokenGenerator: ITokenGenerator,
     private readonly auditLogger: IAuditLogger,
     private readonly sessionTtlSeconds: number
-  ) { }
+  ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
     const credentials = LoginCredentialsSchema.parse({

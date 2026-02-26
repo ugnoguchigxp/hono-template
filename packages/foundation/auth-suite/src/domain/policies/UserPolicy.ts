@@ -1,6 +1,7 @@
 import { DomainError } from '@foundation/app-core/errors';
 import type { User } from '../../contracts.js';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: This is used as a namespace
 export class UserPolicy {
   static validateRegistrationData(data: {
     email: string;

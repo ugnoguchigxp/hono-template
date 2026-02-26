@@ -1,15 +1,9 @@
-
+import { ExternalAccount } from '../../domain/entities/ExternalAccount.js';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import { User as UserEntity } from '../../domain/entities/User.js';
-import { ExternalAccount } from '../../domain/entities/ExternalAccount.js';
 import { UserPolicy } from '../../domain/policies/UserPolicy.js';
-import type {
-  IAuditLogger,
-  ISessionStore,
-  ITokenGenerator,
-  IUserRepository,
-} from '../ports.js';
+import type { IAuditLogger, ISessionStore, ITokenGenerator, IUserRepository } from '../ports.js';
 
 export interface ExternalAuthInput {
   provider: string;
@@ -33,7 +27,7 @@ export class ExternalAuthUseCase {
     private readonly tokenGenerator: ITokenGenerator,
     private readonly auditLogger: IAuditLogger,
     private readonly sessionTtlSeconds: number
-  ) { }
+  ) {}
 
   async execute(input: ExternalAuthInput): Promise<ExternalAuthOutput> {
     // 1. Check if external account already exists
@@ -62,11 +56,17 @@ export class ExternalAuthUseCase {
     // 4. Link external account if not already linked
     const linkedAccounts = user.getExternalAccounts();
     const isAlreadyLinked = linkedAccounts.some(
-      (acc) => acc.getData().provider === input.provider && acc.getData().externalId === input.externalId
+      (acc) =>
+        acc.getData().provider === input.provider && acc.getData().externalId === input.externalId
     );
 
     if (!isAlreadyLinked) {
-      const newAccountData: any = {
+      const newAccountData: {
+        userId: string;
+        provider: string;
+        externalId: string;
+        email?: string;
+      } = {
         userId: user.getId(),
         provider: input.provider,
         externalId: input.externalId,

@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import type { DBClient, DatabaseConfig, DrizzleDatabase } from './types.js';
 import * as schema from './schema/index.js';
+import type { DBClient, DatabaseConfig, DrizzleDatabase } from './types.js';
 
 export class PostgresClient implements DBClient {
   private client: postgres.Sql;
@@ -18,6 +18,7 @@ export class PostgresClient implements DBClient {
 
   async rawQuery<T = unknown>(sql: string, params: unknown[] = []): Promise<T[]> {
     try {
+      // biome-ignore lint/suspicious/noExplicitAny: Drizzle requires any here
       const result = await this.client.unsafe(sql, params as any[]);
       return result as unknown as T[];
     } catch (error) {
@@ -27,13 +28,11 @@ export class PostgresClient implements DBClient {
 
   async rawQueryOne<T = unknown>(sql: string, params: unknown[] = []): Promise<T | null> {
     const results = await this.rawQuery<T>(sql, params);
-    return results.length > 0 ? results[0] ?? null : null;
+    return results.length > 0 ? (results[0] ?? null) : null;
   }
 
-  async transaction<T>(
-    callback: (tx: import('./types.js').Transaction) => Promise<T>
-  ): Promise<T> {
-    return this.db.transaction(callback as any);
+  async transaction<T>(callback: (tx: import('./types.js').Transaction) => Promise<T>): Promise<T> {
+    return this.db.transaction(callback as unknown as (tx: unknown) => Promise<T>);
   }
 
   getDrizzleDB() {

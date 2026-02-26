@@ -10,7 +10,7 @@ export function createLogoutHandler(logoutUseCase: LogoutUseCase) {
       return c.json({ message: 'No active session' }, 200);
     }
 
-    const input: any = { token: session.getData().token };
+    const input: Record<string, unknown> = { token: session.getData().token };
     const ip = c.req.header('x-forwarded-for') || c.req.header('x-real-ip');
     const ua = c.req.header('user-agent');
     if (ip) input.ipAddress = ip;

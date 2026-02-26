@@ -1,5 +1,5 @@
-import type { Container } from '@foundation/app-core/types.js';
 import { DIKeys } from '@foundation/app-core/di/index.js';
+import type { Container } from '@foundation/app-core/types.js';
 import { HealthCheckResponseSchema } from '@foundation/contracts/api/index.js';
 import type { DBClient } from '@foundation/db/types.js';
 import type { Context } from 'hono';
@@ -11,7 +11,7 @@ export function createHealthCheckHandler(version = '1.0.0') {
     const container = c.get('container') as Container | undefined;
 
     // Perform health checks
-    const checks: Record<string, any> = {
+    const checks: Record<string, unknown> = {
       database: await checkDatabase(container),
       memory: checkMemory(),
       disk: await checkDisk(),

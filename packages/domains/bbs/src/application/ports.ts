@@ -1,6 +1,6 @@
-import { CommentId, ThreadId, UserId } from '../contracts.js';
-import { Thread as ThreadEntity } from '../domain/entities/Thread.js';
-import { Comment as CommentEntity } from '../domain/entities/Comment.js';
+import { type CommentId, type ThreadId, UserId } from '../contracts.js';
+import type { Comment as CommentEntity } from '../domain/entities/Comment.js';
+import type { Thread as ThreadEntity } from '../domain/entities/Thread.js';
 
 export interface IThreadRepository {
   findById(id: ThreadId): Promise<ThreadEntity | null>;

@@ -22,7 +22,7 @@ export class RegisterUserUseCase {
     private readonly userRepository: IUserRepository,
     private readonly passwordHasher: IPasswordHasher,
     private readonly auditLogger: IAuditLogger
-  ) { }
+  ) {}
 
   async execute(input: RegisterInput): Promise<RegisterOutput> {
     UserPolicy.validateRegistrationData({

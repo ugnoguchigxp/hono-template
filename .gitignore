@@ -26,7 +26,6 @@ pnpm-debug.log*
 .env.*
 !.env.example
 A2UI/
-**/
 # Caches
 .turbo/
 **/.turbo/

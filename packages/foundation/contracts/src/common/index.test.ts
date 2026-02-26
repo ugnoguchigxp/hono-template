@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { PaginationSchema, SortSchema, IdSchema, DateRangeSchema } from './index.js';
+import { z } from 'zod';
+import { PaginationSchema, SortSchema, IdSchema, DateRangeSchema, withReferenceIntegrity } from './index.js';
 
 describe('Common Contracts', () => {
   describe('PaginationSchema', () => {
@@ -36,6 +37,45 @@ describe('Common Contracts', () => {
       const validDate = new Date().toISOString();
       expect(DateRangeSchema.parse({ from: validDate })).toEqual({ from: validDate });
       expect(() => DateRangeSchema.parse({ from: 'invalid-date' })).toThrow();
+    });
+  });
+
+  describe('withReferenceIntegrity', () => {
+    const ResourceSchema = z
+      .object({
+        id: z.string(),
+        refs: z.array(z.string()),
+      })
+      .array()
+      .superRefine(withReferenceIntegrity((item) => item.refs));
+
+    it('should pass when ids are unique and all refs exist', () => {
+      const result = ResourceSchema.safeParse([
+        { id: 'a', refs: ['b'] },
+        { id: 'b', refs: [] },
+      ]);
+      expect(result.success).toBe(true);
+    });
+
+    it('should fail on duplicate id', () => {
+      const result = ResourceSchema.safeParse([
+        { id: 'a', refs: [] },
+        { id: 'a', refs: [] },
+      ]);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues.some((issue) => issue.message.includes('重複ID'))).toBe(true);
+      }
+    });
+
+    it('should fail on missing reference', () => {
+      const result = ResourceSchema.safeParse([
+        { id: 'a', refs: ['b'] },
+      ]);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues.some((issue) => issue.message.includes('参照先ID不在'))).toBe(true);
+      }
     });
   });
 });

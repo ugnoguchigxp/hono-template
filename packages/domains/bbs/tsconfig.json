@@ -6,10 +6,5 @@
     "composite": true
   },
   "include": ["src/**/*"],
-  "exclude": ["dist", "node_modules", "tests", "migrations"],
-  "references": [
-    {
-      "path": "../app-core"
-    }
-  ]
+  "exclude": ["dist", "node_modules", "tests"]
 }

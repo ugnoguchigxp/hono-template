@@ -1,8 +1,8 @@
 import { createHonoApp } from '@adapters/http-hono/index.js';
-import { DIKeys } from '@foundation/app-core/di/index.js';
-import { bootstrapDI, resolveHonoDependencies } from './di/index.js';
 import type { Config } from '@foundation/app-core/config.js';
+import { DIKeys } from '@foundation/app-core/di/index.js';
 import type { Logger } from '@foundation/app-core/types.js';
+import { bootstrapDI, resolveHonoDependencies } from './di/index.js';
 
 // Initialize DI and resolve dependencies
 const container = bootstrapDI();

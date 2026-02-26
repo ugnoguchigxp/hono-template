@@ -6,7 +6,9 @@
     ".": "./dist/index.js",
     "./common": "./dist/common/index.js",
     "./errors": "./dist/errors/index.js",
-    "./api": "./dist/api/index.js"
+    "./api": "./dist/api/index.js",
+    "./guards": "./dist/guards/index.js",
+    "./events": "./dist/events/index.js"
   },
   "scripts": {
     "build": "tsc",

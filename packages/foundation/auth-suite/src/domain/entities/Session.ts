@@ -1,4 +1,8 @@
-import type { Session as SessionType, UserId, SessionToken as SessionTokenType } from '../../contracts.js';
+import type {
+  SessionToken as SessionTokenType,
+  Session as SessionType,
+  UserId,
+} from '../../contracts.js';
 import { UserId as UserIdVO } from '../value-objects/index.js';
 
 export class SessionToken {

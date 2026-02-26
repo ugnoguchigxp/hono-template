@@ -4,27 +4,27 @@ export class RequestContextBuilder {
   private data: Partial<RequestContext> = {};
 
   withRequestId(requestId: string): this {
-    (this.data as any).requestId = requestId;
+    (this.data as Record<string, unknown>).requestId = requestId;
     return this;
   }
 
   withActorId(actorId: string | null): this {
-    (this.data as any).actorId = actorId;
+    (this.data as Record<string, unknown>).actorId = actorId;
     return this;
   }
 
   withTenantId(tenantId: string | null): this {
-    (this.data as any).tenantId = tenantId;
+    (this.data as Record<string, unknown>).tenantId = tenantId;
     return this;
   }
 
   withTraceId(traceId: string): this {
-    (this.data as any).traceId = traceId;
+    (this.data as Record<string, unknown>).traceId = traceId;
     return this;
   }
 
   withTimestamp(timestamp: Date = new Date()): this {
-    (this.data as any).timestamp = timestamp;
+    (this.data as Record<string, unknown>).timestamp = timestamp;
     return this;
   }
 
@@ -54,7 +54,7 @@ export class RequestContextBuilder {
 
   static fromPartial(partial: Partial<RequestContext>): RequestContextBuilder {
     const builder = new RequestContextBuilder();
-    (builder.data as any) = { ...partial };
+    (builder.data as Record<string, unknown>) = { ...partial };
     return builder;
   }
 }

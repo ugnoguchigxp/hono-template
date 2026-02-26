@@ -7,7 +7,7 @@ export class DrizzleAuditLogger implements IAuditLogger {
   constructor(
     private readonly db: DBClient,
     private readonly logger: Logger
-  ) { }
+  ) {}
 
   async logUserLogin(userId: string, ipAddress?: string, userAgent?: string): Promise<void> {
     try {

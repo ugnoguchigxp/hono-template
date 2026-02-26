@@ -1,16 +1,13 @@
 import * as otplib from 'otplib';
-const authenticator = (otplib as any).authenticator || (otplib as any).default?.authenticator || (otplib as any);
+const authenticator =
+  // biome-ignore lint/suspicious/noExplicitAny: otplib lacks valid ESM exports
+  (otplib as any).authenticator || (otplib as any).default?.authenticator || (otplib as any);
 import { AuthError } from '@foundation/app-core/errors';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import type { User } from '../../domain/index.js';
 import { UserPolicy } from '../../domain/policies/UserPolicy.js';
-import type {
-  IAuditLogger,
-  ISessionStore,
-  ITokenGenerator,
-  IUserRepository,
-} from '../ports.js';
+import type { IAuditLogger, ISessionStore, ITokenGenerator, IUserRepository } from '../ports.js';
 
 export interface VerifyMfaInput {
   userId: string;
@@ -31,7 +28,7 @@ export class VerifyMfaUseCase {
     private readonly tokenGenerator: ITokenGenerator,
     private readonly auditLogger: IAuditLogger,
     private readonly sessionTtlSeconds: number
-  ) { }
+  ) {}
 
   async execute(input: VerifyMfaInput): Promise<VerifyMfaOutput> {
     const user = await this.userRepository.findById(input.userId);
@@ -84,7 +81,7 @@ export class VerifyMfaUseCase {
   private async verifyTotp(code: string, secret: string): Promise<boolean> {
     try {
       return authenticator.check(code, secret);
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

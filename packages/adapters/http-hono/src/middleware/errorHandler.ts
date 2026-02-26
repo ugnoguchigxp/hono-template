@@ -24,6 +24,7 @@ export function createErrorHandler(): ErrorHandler {
       method: c.req.method,
     });
 
+    // biome-ignore lint/suspicious/noExplicitAny: Hono StatusCode type constraint
     return c.json(errorResponse, appError.statusCode as any);
   };
 }
@@ -34,11 +35,13 @@ export function createZodErrorHandler(): ErrorHandler {
       const logger = c.get('logger');
       const requestContext = c.get('requestContext');
 
+      // biome-ignore lint/suspicious/noExplicitAny: ZodError is complex to fully type here
       const zodError = err as any;
       const errorResponse = ErrorResponseSchema.parse({
         error: 'VALIDATION_ERROR',
         message: 'Invalid request data',
         code: 'VALIDATION_ERROR',
+        // biome-ignore lint/suspicious/noExplicitAny: ZodError is complex
         details: zodError.errors?.map((issue: any) => ({
           field: issue.path?.join('.'),
           message: issue.message,

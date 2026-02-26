@@ -1,4 +1,4 @@
-import { CommentId, ThreadId, UserId, Comment as CommentType } from '../../contracts.js';
+import type { CommentId, Comment as CommentType, ThreadId, UserId } from '../../contracts.js';
 
 export class Comment {
   private constructor(private readonly data: CommentType) {}
@@ -25,7 +25,13 @@ export class Comment {
     return { ...this.data };
   }
 
-  get id(): CommentId { return this.data.id; }
-  get threadId(): ThreadId { return this.data.threadId; }
-  get parentId(): CommentId | null | undefined { return this.data.parentId; }
+  get id(): CommentId {
+    return this.data.id;
+  }
+  get threadId(): ThreadId {
+    return this.data.threadId;
+  }
+  get parentId(): CommentId | null | undefined {
+    return this.data.parentId;
+  }
 }

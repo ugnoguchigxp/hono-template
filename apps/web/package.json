@@ -11,12 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@foundation/ui-dsl": "workspace:^",
     "@hookform/resolvers": "^3.9.1",
     "@tanstack/react-query": "^5.62.0",
     "@tanstack/react-router": "^1.93.0",
     "@tanstack/react-table": "^8.20.6",
-    "@ui/design-system": "workspace:*",
     "clsx": "^2.1.1",
     "i18next": "^25.0.0",
     "lucide-react": "^0.556.0",

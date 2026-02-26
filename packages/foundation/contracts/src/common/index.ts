@@ -1,4 +1,5 @@
 import { z } from 'zod';
+export { withReferenceIntegrity } from './refine.js';
 
 export const PaginationSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -22,6 +23,15 @@ export const PaginationResultSchema = z.object({
   }),
 });
 
+export const StreamStatusSchema = z.enum(['partial', 'complete', 'error']);
+
+export const createStreamResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
+  z.object({
+    status: StreamStatusSchema,
+    items: z.array(itemSchema),
+    cursor: z.string().optional(),
+  });
+
 export const IdSchema = z.string().uuid();
 
 export const DateRangeSchema = z.object({
@@ -33,6 +43,12 @@ export type Pagination = z.infer<typeof PaginationSchema>;
 export type Sort = z.infer<typeof SortSchema>;
 export type PaginationResult<T = unknown> = Omit<z.infer<typeof PaginationResultSchema>, 'data'> & {
   data: T[];
+};
+export type StreamStatus = z.infer<typeof StreamStatusSchema>;
+export type StreamResponse<T = unknown> = {
+  status: StreamStatus;
+  items: T[];
+  cursor?: string;
 };
 export type Id = z.infer<typeof IdSchema>;
 export type DateRange = z.infer<typeof DateRangeSchema>;

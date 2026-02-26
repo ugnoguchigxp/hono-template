@@ -2,11 +2,10 @@ import type { IUserRepository } from '@foundation/auth-suite/application/ports.j
 import { User as UserEntity } from '@foundation/auth-suite/domain/entities/User.js';
 import type { DBClient } from '@foundation/db/types.js';
 import { and, eq } from 'drizzle-orm';
-import { users, userExternalAccounts } from '../schema/index.js';
-
+import { userExternalAccounts, users } from '../schema/index.js';
 
 export class DrizzleUserRepository implements IUserRepository {
-  constructor(private readonly db: DBClient) { }
+  constructor(private readonly db: DBClient) {}
 
   async findById(id: string): Promise<UserEntity | null> {
     const result = await this.db.query.users.findFirst({
