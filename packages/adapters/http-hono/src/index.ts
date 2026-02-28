@@ -1,4 +1,4 @@
-import type { Container, Logger } from '@foundation/app-core/types.js';
+import type { Container, Logger } from '@foundation/app-core';
 import type { DBClient } from '@foundation/db';
 import type {
   LoginUseCase,
@@ -7,7 +7,7 @@ import type {
   ValidateSessionUseCase,
   VerifyMfaUseCase,
   ExternalAuthUseCase,
-} from '@foundation/auth-suite/application/index.js';
+} from '@foundation/auth-suite/application';
 import type {
   CreateThreadUseCase,
   GetThreadDetailUseCase,
@@ -52,7 +52,7 @@ import {
   createZodErrorHandler,
   requestContextMiddleware,
 } from './middleware/index.js';
-import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
+import type { IOAuthClient } from '@foundation/auth-suite/application';
 
 export interface HonoAppDependencies {
   container: Container;

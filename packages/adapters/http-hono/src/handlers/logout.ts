@@ -1,4 +1,4 @@
-import type { LogoutUseCase } from '@foundation/auth-suite/application/usecases/LogoutUseCase.js';
+import type { LogoutUseCase } from '@foundation/auth-suite/application';
 import type { Context } from 'hono';
 
 export function createLogoutHandler(logoutUseCase: LogoutUseCase) {

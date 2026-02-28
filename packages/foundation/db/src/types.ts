@@ -1,4 +1,3 @@
-import type { Transaction as BaseTransaction } from '@foundation/app-core/types.js';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type * as schema from './schema/index.js';
 
@@ -19,10 +18,7 @@ export interface DBClient {
   query: DrizzleDatabase['query'];
 }
 
-export interface Transaction extends BaseTransaction {
-  rawQuery<T = unknown>(sql: string, params?: unknown[]): Promise<T[]>;
-  rawQueryOne<T = unknown>(sql: string, params?: unknown[]): Promise<T | null>;
-}
+export type Transaction = any;
 
 export interface DatabaseConfig {
   url: string;

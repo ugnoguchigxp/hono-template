@@ -16,10 +16,10 @@ export class PostgresClient implements DBClient {
     this.db = drizzle(this.client, { schema });
   }
 
-  async rawQuery<T = unknown>(sql: string, params: unknown[] = []): Promise<T[]> {
+  async rawQuery<T = unknown>(sqlText: string, params: unknown[] = []): Promise<T[]> {
     try {
-      const result = await this.client.unsafe(sql, params);
-      return result as T[];
+      const result = await this.client.unsafe(sqlText, params as any[]);
+      return result as unknown as T[];
     } catch (error) {
       throw new Error(`Query failed: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -31,7 +31,7 @@ export class PostgresClient implements DBClient {
   }
 
   async transaction<T>(
-    callback: (tx: import('../types.js').Transaction) => Promise<T>
+    callback: (tx: import('./types.js').Transaction) => Promise<T>
   ): Promise<T> {
     return this.db.transaction(callback);
   }
@@ -42,19 +42,19 @@ export class PostgresClient implements DBClient {
 
   // Drizzle ORM methods delegation
   get insert() {
-    return this.db.insert;
+    return this.db.insert.bind(this.db);
   }
 
   get update() {
-    return this.db.update;
+    return this.db.update.bind(this.db);
   }
 
   get delete() {
-    return this.db.delete;
+    return this.db.delete.bind(this.db);
   }
 
   get select() {
-    return this.db.select;
+    return this.db.select.bind(this.db);
   }
 
   // Drizzle schema access

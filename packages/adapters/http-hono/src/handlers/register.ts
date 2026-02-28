@@ -1,5 +1,5 @@
-import type { RegisterUserUseCase } from '@foundation/auth-suite/application/usecases/RegisterUserUseCase.js';
-import { RegisterRequestSchema, UserResponseSchema } from '@foundation/contracts/api/index.js';
+import type { RegisterUserUseCase } from '@foundation/auth-suite/application';
+import { RegisterRequestSchema, UserResponseSchema } from '@foundation/contracts/api';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 

@@ -1,4 +1,4 @@
-import { AuthError } from '@foundation/app-core/errors.js';
+import { AuthError } from '@foundation/app-core/errors';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import { User as UserEntity } from '../../domain/entities/User.js';

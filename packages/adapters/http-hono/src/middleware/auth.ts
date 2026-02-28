@@ -1,6 +1,6 @@
-import { AuthError } from '@foundation/app-core/errors.js';
-import type { RequestContext } from '@foundation/app-core/types.js';
-import type { ValidateSessionUseCase } from '@foundation/auth-suite/application/usecases/ValidateSessionUseCase.js';
+import { AuthError } from '@foundation/app-core/errors';
+import type { RequestContext } from '@foundation/app-core';
+import type { ValidateSessionUseCase } from '@foundation/auth-suite/application';
 import type { Context, Next } from 'hono';
 
 export interface AuthMiddlewareOptions {

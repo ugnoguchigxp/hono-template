@@ -4,11 +4,11 @@ import {
   DrizzleUserRepository,
   DrizzleThreadRepository,
   DrizzleCommentRepository,
-} from '@adapters/db-drizzle/index.js';
-import { Config } from '@foundation/app-core/config.js';
-import { DIKeys, createContainer } from '@foundation/app-core/di/index.js';
-import { createLogger } from '@foundation/app-core/logger.js';
-import type { Logger } from '@foundation/app-core/types.js';
+} from '@adapters/db-drizzle';
+import { Config } from '@foundation/app-core/config';
+import { DIKeys, createContainer } from '@foundation/app-core/di';
+import { createLogger } from '@foundation/app-core/logger';
+import type { Logger } from '@foundation/app-core';
 import {
   LoginUseCase,
   LogoutUseCase,
@@ -16,27 +16,27 @@ import {
   ValidateSessionUseCase,
   VerifyMfaUseCase,
   ExternalAuthUseCase,
-} from '@foundation/auth-suite/application/index.js';
+} from '@foundation/auth-suite/application';
 import {
   createPasswordHasher,
   createTokenGenerator,
-} from '@foundation/auth-suite/infrastructure/index.js';
-import { createDBClient } from '@foundation/db/client.js';
-import type { DBClient } from '@foundation/db/index.js';
-import { createTransactionManager } from '@foundation/db/transaction/index.js';
+} from '@foundation/auth-suite/infrastructure';
+import { createDBClient } from '@foundation/db';
+import type { DBClient } from '@foundation/db';
+import { createTransactionManager } from '@foundation/db/transaction';
 import {
   CreateThreadUseCase,
   GetThreadDetailUseCase,
   ListThreadsUseCase,
   PostCommentUseCase,
 } from '@domains/bbs';
-import type { Container } from '@foundation/app-core/types.js';
+import type { Container } from '@foundation/app-core';
 import {
   GoogleOAuthClient,
   GitHubOAuthClient,
   MSALOAuthClient,
 } from '@foundation/auth-suite/infrastructure/oauth/index.js';
-import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
+import type { IOAuthClient } from '@foundation/auth-suite/application';
 
 export function bootstrapDI(): Container {
   // Config handles environment variables internally, 

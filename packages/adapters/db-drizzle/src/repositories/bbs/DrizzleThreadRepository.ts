@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm';
-import { threads, Thread as ThreadRow } from '@foundation/db/schema';
-import { IThreadRepository, Thread as ThreadEntity, ThreadId } from '@domains/bbs';
-import { DatabaseClient } from '@foundation/db';
+import { threads } from '@foundation/db/schema';
+import { IThreadRepository, ThreadEntity, ThreadId } from '@domains/bbs';
+import type { DBClient } from '@foundation/db';
 
 export class DrizzleThreadRepository implements IThreadRepository {
-  constructor(private readonly db: DatabaseClient) {}
+  constructor(private readonly db: DBClient) {}
 
   async findById(id: ThreadId): Promise<ThreadEntity | null> {
     const result = await this.db.query.threads.findFirst({

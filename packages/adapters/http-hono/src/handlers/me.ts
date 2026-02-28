@@ -1,4 +1,4 @@
-import { UserResponseSchema } from '@foundation/contracts/api/index.js';
+import { UserResponseSchema } from '@foundation/contracts/api';
 import type { Context } from 'hono';
 
 export function createMeHandler() {

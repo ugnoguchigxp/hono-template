@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm';
-import { comments, Comment as CommentRow } from '@foundation/db/schema';
-import { ICommentRepository, Comment as CommentEntity, CommentId, ThreadId } from '@domains/bbs';
-import { DatabaseClient } from '@foundation/db';
+import { comments } from '@foundation/db/schema';
+import { ICommentRepository, CommentEntity, CommentId, ThreadId } from '@domains/bbs';
+import type { DBClient } from '@foundation/db';
 
 export class DrizzleCommentRepository implements ICommentRepository {
-  constructor(private readonly db: DatabaseClient) {}
+  constructor(private readonly db: DBClient) {}
 
   async findById(id: CommentId): Promise<CommentEntity | null> {
     const result = await this.db.query.comments.findFirst({

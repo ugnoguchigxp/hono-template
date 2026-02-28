@@ -1,4 +1,4 @@
-import { DomainError } from '@foundation/app-core/errors.js';
+import { DomainError } from '@foundation/app-core/errors';
 import type { User } from '../../domain/index.js';
 import { Email, User as UserEntity, type UserId } from '../../domain/index.js';
 import { UserPolicy } from '../../domain/policies/UserPolicy.js';

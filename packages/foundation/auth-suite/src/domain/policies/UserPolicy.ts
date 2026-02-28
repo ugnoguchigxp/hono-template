@@ -1,4 +1,4 @@
-import { DomainError } from '@foundation/app-core/errors.js';
+import { DomainError } from '@foundation/app-core/errors';
 import type { User } from '../contracts.js';
 
 export class UserPolicy {

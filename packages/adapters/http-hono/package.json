@@ -16,6 +16,7 @@
     "@foundation/app-core": "workspace:*",
     "@foundation/auth-suite": "workspace:*",
     "@foundation/contracts": "workspace:*",
+    "drizzle-orm": "^0.29.0",
     "hono": "^4.0.0",
     "@hono/zod-validator": "^0.2.0",
     "zod": "^3.22.0"

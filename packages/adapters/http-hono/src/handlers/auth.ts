@@ -1,13 +1,13 @@
-import type { LoginUseCase } from '@foundation/auth-suite/application/usecases/LoginUseCase.js';
-import type { VerifyMfaUseCase } from '@foundation/auth-suite/application/usecases/VerifyMfaUseCase.js';
-import type { ExternalAuthUseCase } from '@foundation/auth-suite/application/usecases/ExternalAuthUseCase.js';
-import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
+import type { LoginUseCase } from '@foundation/auth-suite/application';
+import type { VerifyMfaUseCase } from '@foundation/auth-suite/application';
+import type { ExternalAuthUseCase } from '@foundation/auth-suite/application';
+import type { IOAuthClient } from '@foundation/auth-suite/application';
 import {
   LoginRequestSchema,
   LoginResponseSchema,
   OAuthCallbackRequestSchema,
   VerifyMfaRequestSchema,
-} from '@foundation/contracts/api/index.js';
+} from '@foundation/contracts/api';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 import { setCookie, getCookie } from 'hono/cookie';

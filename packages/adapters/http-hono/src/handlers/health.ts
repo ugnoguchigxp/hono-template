@@ -1,7 +1,7 @@
-import type { Container } from '@foundation/app-core/types.js';
-import { DIKeys } from '@foundation/app-core/di/index.js';
-import { HealthCheckResponseSchema } from '@foundation/contracts/api/index.js';
-import type { DBClient } from '@foundation/db/types.js';
+import type { Container } from '@foundation/app-core';
+import { DIKeys } from '@foundation/app-core/di';
+import { HealthCheckResponseSchema } from '@foundation/contracts/api';
+import type { DBClient } from '@foundation/db';
 import type { Context } from 'hono';
 
 export function createHealthCheckHandler(version = '1.0.0') {

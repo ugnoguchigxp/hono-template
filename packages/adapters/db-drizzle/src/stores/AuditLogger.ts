@@ -1,6 +1,6 @@
-import type { Logger } from '@foundation/app-core/types.js';
-import type { IAuditLogger } from '@foundation/auth-suite/application/ports.js';
-import type { DBClient } from '@foundation/db/types.js';
+import type { Logger } from '@foundation/app-core';
+import type { IAuditLogger } from '@foundation/auth-suite/application';
+import type { DBClient } from '@foundation/db';
 import { auditLogs } from '../schema/index.js';
 
 export class DrizzleAuditLogger implements IAuditLogger {

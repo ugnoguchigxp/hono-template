@@ -1,4 +1,4 @@
-import { InfraError } from '@foundation/app-core/errors.js';
+import { InfraError } from '@foundation/app-core/errors';
 import type { ISessionStore } from '../application/ports.js';
 import type { Session, SessionToken } from '../domain/index.js';
 

@@ -1,5 +1,5 @@
-import { createRequestContext } from '@foundation/app-core/context.js';
-import type { RequestContext } from '@foundation/app-core/types.js';
+import { createRequestContext } from '@foundation/app-core/context';
+import type { RequestContext } from '@foundation/app-core';
 import type { Context, Next } from 'hono';
 
 export function requestContextMiddleware() {

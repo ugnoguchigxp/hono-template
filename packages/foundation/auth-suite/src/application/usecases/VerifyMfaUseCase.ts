@@ -1,5 +1,5 @@
-import { authenticator } from 'otplib';
-import { AuthError } from '@foundation/app-core/errors.js';
+import * as otplib from 'otplib';
+import { AuthError } from '@foundation/app-core/errors';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import type { User } from '../../domain/index.js';
@@ -82,7 +82,7 @@ export class VerifyMfaUseCase {
   // Real TOTP verification logic
   private async verifyTotp(code: string, secret: string): Promise<boolean> {
     try {
-      return authenticator.check(code, secret);
+      return otplib.authenticator.check(code, secret);
     } catch (error) {
       return false;
     }

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
-import type { ISessionStore } from '@foundation/auth-suite/application/ports.js';
+import type { ISessionStore } from '@foundation/auth-suite/application';
 import { Session as SessionEntity } from '@foundation/auth-suite/domain/entities/Session.js';
-import type { DBClient } from '@foundation/db/types.js';
+import type { DBClient } from '@foundation/db';
 import { and, eq, lt } from 'drizzle-orm';
 import { sessions } from '../schema/index.js';
 

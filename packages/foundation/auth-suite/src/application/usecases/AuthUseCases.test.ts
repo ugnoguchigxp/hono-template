@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { RegisterUserUseCase } from '@foundation/auth-suite/application/usecases/RegisterUserUseCase.js';
-import { LoginUseCase } from '@foundation/auth-suite/application/usecases/LoginUseCase.js';
-import { LogoutUseCase } from '@foundation/auth-suite/application/usecases/LogoutUseCase.js';
-import { ValidateSessionUseCase } from '@foundation/auth-suite/application/usecases/ValidateSessionUseCase.js';
+import { RegisterUserUseCase } from '@foundation/auth-suite/application';
+import { LoginUseCase } from '@foundation/auth-suite/application';
+import { LogoutUseCase } from '@foundation/auth-suite/application';
+import { ValidateSessionUseCase } from '@foundation/auth-suite/application';
 import { User } from '@foundation/auth-suite/domain/entities/User.js';
 import { Session, SessionToken } from '@foundation/auth-suite/domain/entities/Session.js';
 

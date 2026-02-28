@@ -1,6 +1,6 @@
-import type { IUserRepository } from '@foundation/auth-suite/application/ports.js';
+import type { IUserRepository } from '@foundation/auth-suite/application';
 import { User as UserEntity } from '@foundation/auth-suite/domain/entities/User.js';
-import type { DBClient } from '@foundation/db/types.js';
+import type { DBClient } from '@foundation/db';
 import { and, eq } from 'drizzle-orm';
 import { users, userExternalAccounts } from '../schema/index.js';
 import { ExternalAccount } from '@foundation/auth-suite/domain/entities/ExternalAccount.js';

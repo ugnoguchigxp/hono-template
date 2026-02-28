@@ -1,5 +1,5 @@
-import { handleUnknownError, isAppError } from '@foundation/app-core/errors.js';
-import { ErrorResponseSchema } from '@foundation/contracts/errors.js';
+import { handleUnknownError, isAppError } from '@foundation/app-core/errors';
+import { ErrorResponseSchema } from '@foundation/contracts/errors';
 import type { Context } from 'hono';
 import type { ErrorHandler } from 'hono';
 

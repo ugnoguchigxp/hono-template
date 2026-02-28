@@ -1,8 +1,24 @@
-import { createHonoApp } from '@adapters/http-hono/index.js';
-import { DIKeys } from '@foundation/app-core/di/index.js';
+import { createHonoApp } from '@adapters/http-hono';
+import { DIKeys } from '@foundation/app-core/di';
+import { existsSync, readFileSync } from 'node:fs';
 import { bootstrapDI, resolveHonoDependencies } from './di/index.js';
-import type { Config } from '@foundation/app-core/config.js';
-import type { Logger } from '@foundation/app-core/types.js';
+import type { Config } from '@foundation/app-core/config';
+import type { Logger } from '@foundation/app-core';
+
+// Load .env from repo root when running from apps/api
+const envPath = new URL('../../../.env', import.meta.url).pathname;
+if (existsSync(envPath)) {
+  const lines = readFileSync(envPath, 'utf-8').split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const idx = trimmed.indexOf('=');
+    if (idx < 0) continue;
+    const key = trimmed.slice(0, idx).trim();
+    const value = trimmed.slice(idx + 1).trim();
+    if (!(key in process.env)) process.env[key] = value;
+  }
+}
 
 // Initialize DI and resolve dependencies
 const container = bootstrapDI();
