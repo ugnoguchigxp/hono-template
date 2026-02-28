@@ -1,45 +1,42 @@
 import {
   DrizzleAuditLogger,
-  DrizzleSessionStore,
-  DrizzleUserRepository,
-  DrizzleThreadRepository,
   DrizzleCommentRepository,
+  DrizzleSessionStore,
+  DrizzleThreadRepository,
+  DrizzleUserRepository,
 } from '@adapters/db-drizzle';
-import { Config } from '@foundation/app-core/config';
-import { DIKeys, createContainer } from '@foundation/app-core/di';
-import { createLogger } from '@foundation/app-core/logger';
-import type { Logger } from '@foundation/app-core';
-import {
-  LoginUseCase,
-  LogoutUseCase,
-  RegisterUserUseCase,
-  ValidateSessionUseCase,
-  VerifyMfaUseCase,
-  ExternalAuthUseCase,
-} from '@foundation/auth-suite/application';
-import {
-  createPasswordHasher,
-  createTokenGenerator,
-} from '@foundation/auth-suite/infrastructure';
-import { createDBClient } from '@foundation/db';
-import type { DBClient } from '@foundation/db';
-import { createTransactionManager } from '@foundation/db/transaction';
 import {
   CreateThreadUseCase,
   GetThreadDetailUseCase,
   ListThreadsUseCase,
   PostCommentUseCase,
 } from '@domains/bbs';
+import type { Logger } from '@foundation/app-core';
 import type { Container } from '@foundation/app-core';
+import { Config } from '@foundation/app-core/config';
+import { DIKeys, createContainer } from '@foundation/app-core/di';
+import { createLogger } from '@foundation/app-core/logger';
 import {
-  GoogleOAuthClient,
+  ExternalAuthUseCase,
+  LoginUseCase,
+  LogoutUseCase,
+  RegisterUserUseCase,
+  ValidateSessionUseCase,
+  VerifyMfaUseCase,
+} from '@foundation/auth-suite/application';
+import type { IOAuthClient } from '@foundation/auth-suite/application';
+import { createPasswordHasher, createTokenGenerator } from '@foundation/auth-suite/infrastructure';
+import {
   GitHubOAuthClient,
+  GoogleOAuthClient,
   MSALOAuthClient,
 } from '@foundation/auth-suite/infrastructure/oauth/index.js';
-import type { IOAuthClient } from '@foundation/auth-suite/application';
+import { createDBClient } from '@foundation/db';
+import type { DBClient } from '@foundation/db';
+import { createTransactionManager } from '@foundation/db/transaction';
 
 export function bootstrapDI(): Container {
-  // Config handles environment variables internally, 
+  // Config handles environment variables internally,
   // but we pass process.env to be explicit if needed by some platforms.
   const config = new Config(process.env as Record<string, string>);
   const logger = createLogger(config.get('LOG_LEVEL'));
@@ -71,13 +68,13 @@ export function resolveHonoDependencies(container: Container) {
   const config = container.resolve<Config>(DIKeys.Config);
   const logger = container.resolve<Logger>(DIKeys.Logger);
   const dbClient = container.resolve<DBClient>(DIKeys.DatabaseClient);
-  
+
   const passwordHasher = createPasswordHasher();
   const tokenGenerator = createTokenGenerator();
   const auditLogger = new DrizzleAuditLogger(dbClient, logger);
   const userRepository = new DrizzleUserRepository(dbClient);
   const sessionStore = new DrizzleSessionStore(dbClient);
-  
+
   const threadRepository = new DrizzleThreadRepository(dbClient);
   const commentRepository = new DrizzleCommentRepository(dbClient);
 
@@ -130,7 +127,11 @@ export function resolveHonoDependencies(container: Container) {
       sessionTtl
     ),
     registerUserUseCase: new RegisterUserUseCase(userRepository, passwordHasher, auditLogger),
-    validateSessionUseCase: new ValidateSessionUseCase(sessionStore, userRepository, tokenGenerator),
+    validateSessionUseCase: new ValidateSessionUseCase(
+      sessionStore,
+      userRepository,
+      tokenGenerator
+    ),
     logoutUseCase: new LogoutUseCase(sessionStore, auditLogger),
     verifyMfaUseCase: new VerifyMfaUseCase(
       userRepository,

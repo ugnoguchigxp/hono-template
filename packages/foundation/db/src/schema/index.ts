@@ -22,34 +22,42 @@ export const users = pgTable('users', {
 });
 
 // External accounts (OAuth/SSO)
-export const userExternalAccounts = pgTable('user_external_accounts', {
-  ...commonColumns,
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  provider: text('provider').notNull(), // e.g., 'google', 'github'
-  externalId: text('external_id').notNull(),
-  email: text('email'),
-}, (table) => ({
-  providerExternalIdIdx: index('user_external_accounts_provider_external_id_idx').on(
-    table.provider,
-    table.externalId
-  ),
-  userIdIdx: index('user_external_accounts_user_id_idx').on(table.userId),
-}));
+export const userExternalAccounts = pgTable(
+  'user_external_accounts',
+  {
+    ...commonColumns,
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    provider: text('provider').notNull(), // e.g., 'google', 'github'
+    externalId: text('external_id').notNull(),
+    email: text('email'),
+  },
+  (table) => ({
+    providerExternalIdIdx: index('user_external_accounts_provider_external_id_idx').on(
+      table.provider,
+      table.externalId
+    ),
+    userIdIdx: index('user_external_accounts_user_id_idx').on(table.userId),
+  })
+);
 
 // Sessions table for authentication
-export const sessions = pgTable('sessions', {
-  ...commonColumns,
-  token: text('token').notNull().unique(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  expiresAt: timestamp('expires_at').notNull(),
-  isActive: boolean('is_active').notNull().default(true),
-}, (table) => ({
-  expiresAtIndex: index('sessions_expires_at_idx').on(table.expiresAt),
-}));
+export const sessions = pgTable(
+  'sessions',
+  {
+    ...commonColumns,
+    token: text('token').notNull().unique(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    expiresAt: timestamp('expires_at').notNull(),
+    isActive: boolean('is_active').notNull().default(true),
+  },
+  (table) => ({
+    expiresAtIndex: index('sessions_expires_at_idx').on(table.expiresAt),
+  })
+);
 
 // Roles table for RBAC
 export const roles = pgTable('roles', {
@@ -71,85 +79,106 @@ export const userRoles = pgTable('user_roles', {
 });
 
 // Audit log table
-export const auditLogs = pgTable('audit_logs', {
-  ...commonColumns,
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
-  action: text('action').notNull(),
-  resource: text('resource').notNull(),
-  resourceId: uuid('resource_id'),
-  details: jsonb('details'),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-}, (table) => ({
-  userIdIndex: index('audit_logs_user_id_idx').on(table.userId),
-  actionIndex: index('audit_logs_action_idx').on(table.action),
-  resourceIndex: index('audit_logs_resource_idx').on(table.resource),
-  createdAtIndex: index('audit_logs_created_at_idx').on(table.createdAt),
-}));
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    ...commonColumns,
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+    action: text('action').notNull(),
+    resource: text('resource').notNull(),
+    resourceId: uuid('resource_id'),
+    details: jsonb('details'),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+  },
+  (table) => ({
+    userIdIndex: index('audit_logs_user_id_idx').on(table.userId),
+    actionIndex: index('audit_logs_action_idx').on(table.action),
+    resourceIndex: index('audit_logs_resource_idx').on(table.resource),
+    createdAtIndex: index('audit_logs_created_at_idx').on(table.createdAt),
+  })
+);
 
 // BBS: Threads table
-export const threads = pgTable('threads', {
-  ...commonColumns,
-  title: text('title').notNull(),
-  content: text('content'),
-  authorId: uuid('author_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-}, (table) => ({
-  authorIdIndex: index('threads_author_id_idx').on(table.authorId),
-  createdAtIndex: index('threads_created_at_idx').on(table.createdAt),
-}));
+export const threads = pgTable(
+  'threads',
+  {
+    ...commonColumns,
+    title: text('title').notNull(),
+    content: text('content'),
+    authorId: uuid('author_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => ({
+    authorIdIndex: index('threads_author_id_idx').on(table.authorId),
+    createdAtIndex: index('threads_created_at_idx').on(table.createdAt),
+  })
+);
 
 // BBS: Comments table
-export const comments = pgTable('comments', {
-  ...commonColumns,
-  threadId: uuid('thread_id')
-    .notNull()
-    .references(() => threads.id, { onDelete: 'cascade' }),
-  parentId: uuid('parent_id')
-    .references((): any => comments.id, { onDelete: 'set null' }),
-  content: text('content').notNull(),
-  authorId: uuid('author_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-}, (table) => ({
-  threadIdIndex: index('comments_thread_id_idx').on(table.threadId),
-  parentIdIndex: index('comments_parent_id_idx').on(table.parentId),
-  authorIdIndex: index('comments_author_id_idx').on(table.authorId),
-  createdAtIndex: index('comments_created_at_idx').on(table.createdAt),
-}));
+export const comments = pgTable(
+  'comments',
+  {
+    ...commonColumns,
+    threadId: uuid('thread_id')
+      .notNull()
+      .references(() => threads.id, { onDelete: 'cascade' }),
+    parentId: uuid('parent_id').references((): any => comments.id, { onDelete: 'set null' }),
+    content: text('content').notNull(),
+    authorId: uuid('author_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => ({
+    threadIdIndex: index('comments_thread_id_idx').on(table.threadId),
+    parentIdIndex: index('comments_parent_id_idx').on(table.parentId),
+    authorIdIndex: index('comments_author_id_idx').on(table.authorId),
+    createdAtIndex: index('comments_created_at_idx').on(table.createdAt),
+  })
+);
 
 // Cross-channel conversation sessions (webchat/discord/telegram...)
-export const chatSessions = pgTable('chat_sessions', {
-  ...commonColumns,
-  title: text('title').notNull(),
-  channel: text('channel').notNull(),
-  externalSessionId: text('external_session_id'),
-  participants: text('participants').array(),
-  tags: text('tags').array(),
-  metadata: jsonb('metadata'),
-}, (table) => ({
-  channelIndex: index('chat_sessions_channel_idx').on(table.channel),
-  externalSessionIndex: index('chat_sessions_external_session_id_idx').on(table.externalSessionId),
-  createdAtIndex: index('chat_sessions_created_at_idx').on(table.createdAt),
-}));
+export const chatSessions = pgTable(
+  'chat_sessions',
+  {
+    ...commonColumns,
+    title: text('title').notNull(),
+    channel: text('channel').notNull(),
+    externalSessionId: text('external_session_id'),
+    participants: text('participants').array(),
+    tags: text('tags').array(),
+    metadata: jsonb('metadata'),
+  },
+  (table) => ({
+    channelIndex: index('chat_sessions_channel_idx').on(table.channel),
+    externalSessionIndex: index('chat_sessions_external_session_id_idx').on(
+      table.externalSessionId
+    ),
+    createdAtIndex: index('chat_sessions_created_at_idx').on(table.createdAt),
+  })
+);
 
-export const chatMessages = pgTable('chat_messages', {
-  ...commonColumns,
-  sessionId: uuid('session_id')
-    .notNull()
-    .references(() => chatSessions.id, { onDelete: 'cascade' }),
-  role: text('role').notNull(),
-  channelMessageId: text('channel_message_id'),
-  sender: text('sender'),
-  content: text('content').notNull(),
-  metadata: jsonb('metadata'),
-}, (table) => ({
-  sessionIdIndex: index('chat_messages_session_id_idx').on(table.sessionId),
-  roleIndex: index('chat_messages_role_idx').on(table.role),
-  channelMessageIndex: index('chat_messages_channel_message_id_idx').on(table.channelMessageId),
-  createdAtIndex: index('chat_messages_created_at_idx').on(table.createdAt),
-}));
+export const chatMessages = pgTable(
+  'chat_messages',
+  {
+    ...commonColumns,
+    sessionId: uuid('session_id')
+      .notNull()
+      .references(() => chatSessions.id, { onDelete: 'cascade' }),
+    role: text('role').notNull(),
+    channelMessageId: text('channel_message_id'),
+    sender: text('sender'),
+    content: text('content').notNull(),
+    metadata: jsonb('metadata'),
+  },
+  (table) => ({
+    sessionIdIndex: index('chat_messages_session_id_idx').on(table.sessionId),
+    roleIndex: index('chat_messages_role_idx').on(table.role),
+    channelMessageIndex: index('chat_messages_channel_message_id_idx').on(table.channelMessageId),
+    createdAtIndex: index('chat_messages_created_at_idx').on(table.createdAt),
+  })
+);
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

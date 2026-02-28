@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm';
-import { threads } from '@foundation/db/schema';
-import { IThreadRepository, ThreadEntity, ThreadId } from '@domains/bbs';
+import { type IThreadRepository, ThreadEntity, type ThreadId } from '@domains/bbs';
 import type { DBClient } from '@foundation/db';
+import { threads } from '@foundation/db/schema';
+import { eq } from 'drizzle-orm';
 
 export class DrizzleThreadRepository implements IThreadRepository {
   constructor(private readonly db: DBClient) {}
@@ -28,7 +28,7 @@ export class DrizzleThreadRepository implements IThreadRepository {
   async findAll(): Promise<ThreadEntity[]> {
     const results = await this.db.query.threads.findMany();
 
-    return results.map(result =>
+    return results.map((result) =>
       ThreadEntity.reconstruct({
         id: result.id as ThreadId,
         title: result.title,

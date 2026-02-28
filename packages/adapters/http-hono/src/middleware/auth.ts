@@ -1,5 +1,5 @@
-import { AuthError } from '@foundation/app-core/errors';
 import type { RequestContext } from '@foundation/app-core';
+import { AuthError } from '@foundation/app-core/errors';
 import type { ValidateSessionUseCase } from '@foundation/auth-suite/application';
 import type { Context, Next } from 'hono';
 

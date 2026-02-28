@@ -1,6 +1,6 @@
-import React from 'react';
-import { Comment } from '../types.js';
-import { User, Clock } from 'lucide-react';
+import { Clock, User } from 'lucide-react';
+import type React from 'react';
+import type { Comment } from '../types.js';
 
 interface CommentItemProps {
   comment: Comment;
@@ -19,9 +19,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
           {new Date(comment.createdAt).toLocaleString()}
         </span>
       </div>
-      <p className="text-sm text-gray-700 whitespace-pre-wrap">
-        {comment.content}
-      </p>
+      <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.content}</p>
     </div>
   );
 };

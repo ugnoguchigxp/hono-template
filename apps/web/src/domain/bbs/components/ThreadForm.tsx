@@ -1,10 +1,10 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import { Button, Card, Input, Textarea } from '@gxp/design-system';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button, Input, Textarea, Card } from '@gxp/design-system';
-import { useCreateThread } from '../BbsService.js';
 import { Send } from 'lucide-react';
+import type React from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { useCreateThread } from '../BbsService.js';
 
 const threadSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -42,36 +42,40 @@ export const ThreadForm: React.FC<ThreadFormProps> = ({ onSuccess }) => {
     <Card className="p-6 border-white/20 bg-white/60 backdrop-blur-lg shadow-xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Thread Title</label>
+          <label htmlFor="thread-title" className="text-sm font-medium text-gray-700">
+            Thread Title
+          </label>
           <Input
+            id="thread-title"
             {...register('title')}
             placeholder="What's on your mind?"
             className={errors.title ? 'border-red-500' : ''}
           />
-          {errors.title && (
-            <p className="text-xs text-red-500">{errors.title.message}</p>
-          )}
+          {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Content</label>
+          <label htmlFor="thread-content" className="text-sm font-medium text-gray-700">
+            Content
+          </label>
           <Textarea
+            id="thread-content"
             {...register('content')}
             placeholder="Provide more details..."
             rows={5}
             className={errors.content ? 'border-red-500' : ''}
           />
-          {errors.content && (
-            <p className="text-xs text-red-500">{errors.content.message}</p>
-          )}
+          {errors.content && <p className="text-xs text-red-500">{errors.content.message}</p>}
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Creating...' : (
+          {isSubmitting ? (
+            'Creating...'
+          ) : (
             <span className="flex items-center gap-2">
               <Send size={16} />
               Create Thread

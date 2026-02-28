@@ -1,4 +1,8 @@
-import type { Role as RoleType, RoleId as RoleIdType, Permission as PermissionType } from '../../contracts.js';
+import type {
+  Permission as PermissionType,
+  RoleId as RoleIdType,
+  Role as RoleType,
+} from '../../contracts.js';
 
 export class RoleId {
   private readonly value: RoleIdType;
@@ -88,7 +92,7 @@ export class Role {
       id: RoleId.create(data.id),
       name: data.name,
       description: data.description || null,
-      permissions: data.permissions.map(p => Permission.create(p)),
+      permissions: data.permissions.map((p) => Permission.create(p)),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -167,7 +171,7 @@ export class Role {
       id: this.id.raw,
       name: this.name,
       description: this.description,
-      permissions: this.permissions.map(p => p.raw),
+      permissions: this.permissions.map((p) => p.raw),
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

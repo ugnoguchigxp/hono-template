@@ -1,6 +1,6 @@
 import { AuthError, NotFoundError } from '@foundation/app-core/errors';
-import type { Session, User } from '../../domain/index.js';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
+import type { Session, User } from '../../domain/index.js';
 import type { ISessionStore, ITokenGenerator, IUserRepository } from '../ports.js';
 
 export interface ValidateSessionInput {

@@ -1,4 +1,4 @@
-import { Comment, PostCommentInput } from './types.js';
+import type { Comment, PostCommentInput } from './types.js';
 
 const API_BASE_URL = '/api/v1/bbs';
 

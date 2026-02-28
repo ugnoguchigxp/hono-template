@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import type { DBClient, DatabaseConfig, DrizzleDatabase } from './types.js';
 import * as schema from './schema/index.js';
+import type { DBClient, DatabaseConfig, DrizzleDatabase } from './types.js';
 
 export class PostgresClient implements DBClient {
   private client: postgres.Sql;
@@ -27,12 +27,10 @@ export class PostgresClient implements DBClient {
 
   async rawQueryOne<T = unknown>(sql: string, params: unknown[] = []): Promise<T | null> {
     const results = await this.rawQuery<T>(sql, params);
-    return results.length > 0 ? results[0] ?? null : null;
+    return results.length > 0 ? (results[0] ?? null) : null;
   }
 
-  async transaction<T>(
-    callback: (tx: import('./types.js').Transaction) => Promise<T>
-  ): Promise<T> {
+  async transaction<T>(callback: (tx: import('./types.js').Transaction) => Promise<T>): Promise<T> {
     return this.db.transaction(callback);
   }
 

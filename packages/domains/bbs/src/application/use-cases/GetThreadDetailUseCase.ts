@@ -1,6 +1,6 @@
-import { IThreadRepository, ICommentRepository } from '../ports.js';
-import { ThreadId, ThreadDetail, CommentNode } from '../../contracts.js';
 import { NotFoundError } from '@foundation/app-core/errors';
+import type { CommentNode, ThreadDetail, ThreadId } from '../../contracts.js';
+import type { ICommentRepository, IThreadRepository } from '../ports.js';
 
 export class GetThreadDetailUseCase {
   constructor(
@@ -15,7 +15,7 @@ export class GetThreadDetailUseCase {
     }
 
     const comments = await this.commentRepo.findByThreadId(threadId);
-    const commentNodes: CommentNode[] = comments.map(c => ({
+    const commentNodes: CommentNode[] = comments.map((c) => ({
       ...c.getData(),
       replies: [],
     }));
@@ -30,17 +30,17 @@ export class GetThreadDetailUseCase {
     const map = new Map<string, CommentNode>();
     const roots: CommentNode[] = [];
 
-    nodes.forEach(node => {
+    for (const node of nodes) {
       map.set(node.id, node);
-    });
+    }
 
-    nodes.forEach(node => {
+    for (const node of nodes) {
       if (node.parentId && map.has(node.parentId)) {
-        map.get(node.parentId)!.replies.push(node);
+        map.get(node.parentId)?.replies.push(node);
       } else {
         roots.push(node);
       }
-    });
+    }
 
     return roots;
   }

@@ -1,10 +1,10 @@
-import React from 'react';
-import { useThread } from '../BbsService.js';
-import { CommentItem } from './CommentItem.js';
-import { CommentForm } from './CommentForm.js';
-import { Card, Separator, Skeleton, Button } from '@gxp/design-system';
+import { Button, Card, Separator, Skeleton } from '@gxp/design-system';
 import { Link } from '@tanstack/react-router';
-import { ArrowLeft, User, Clock, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Clock, MessageCircle, User } from 'lucide-react';
+import type React from 'react';
+import { useThread } from '../BbsService.js';
+import { CommentForm } from './CommentForm.js';
+import { CommentItem } from './CommentItem.js';
 
 interface ThreadDetailProps {
   threadId: string;
@@ -54,15 +54,21 @@ export const ThreadDetail: React.FC<ThreadDetailProps> = ({ threadId }) => {
           <h1 className="text-3xl font-extrabold text-gray-900 mb-4 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
             {thread.title}
           </h1>
-          
+
           <div className="flex items-center gap-4 text-xs text-gray-500 mb-8 pb-4 border-b border-gray-100">
             <span className="flex items-center gap-1">
               <User size={14} className="text-blue-500" />
-              Authored by <span className="font-semibold text-gray-700">{thread.authorId.substring(0, 8)}...</span>
+              Authored by{' '}
+              <span className="font-semibold text-gray-700">
+                {thread.authorId.substring(0, 8)}...
+              </span>
             </span>
             <span className="flex items-center gap-1">
               <Clock size={14} className="text-indigo-500" />
-              Published on <span className="font-semibold text-gray-700">{new Date(thread.createdAt).toLocaleDateString()}</span>
+              Published on{' '}
+              <span className="font-semibold text-gray-700">
+                {new Date(thread.createdAt).toLocaleDateString()}
+              </span>
             </span>
           </div>
 
@@ -75,18 +81,18 @@ export const ThreadDetail: React.FC<ThreadDetailProps> = ({ threadId }) => {
               <MessageCircle size={20} className="text-indigo-600" />
               Comments ({thread.comments.length})
             </div>
-            
+
             <CommentForm threadId={thread.id} />
-            
+
             <Separator className="bg-gray-100" />
 
             <div className="space-y-4">
               {thread.comments.length > 0 ? (
-                thread.comments.map((comment) => (
-                  <CommentItem key={comment.id} comment={comment} />
-                ))
+                thread.comments.map((comment) => <CommentItem key={comment.id} comment={comment} />)
               ) : (
-                <p className="text-center py-8 text-gray-400 italic">No comments yet. Start the conversation!</p>
+                <p className="text-center py-8 text-gray-400 italic">
+                  No comments yet. Start the conversation!
+                </p>
               )}
             </div>
           </div>

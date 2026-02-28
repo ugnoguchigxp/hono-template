@@ -1,7 +1,7 @@
-import React from 'react';
-import { ThreadItem } from './ThreadItem.js';
-import { useThreads } from '../BbsService.js';
 import { Skeleton } from '@gxp/design-system';
+import type React from 'react';
+import { useThreads } from '../BbsService.js';
+import { ThreadItem } from './ThreadItem.js';
 
 export const ThreadList: React.FC = () => {
   const { data, isLoading, error } = useThreads();

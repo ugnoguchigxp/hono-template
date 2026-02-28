@@ -1,8 +1,13 @@
-import { ICommentRepository, IThreadRepository } from '../ports.js';
-import { Comment as CommentEntity } from '../../domain/entities/Comment.js';
-import { PostCommentInput, Comment as CommentType, ThreadId, UserId } from '../../contracts.js';
 import { randomUUID } from 'node:crypto';
 import { NotFoundError } from '@foundation/app-core/errors';
+import type {
+  Comment as CommentType,
+  PostCommentInput,
+  ThreadId,
+  UserId,
+} from '../../contracts.js';
+import { Comment as CommentEntity } from '../../domain/entities/Comment.js';
+import type { ICommentRepository, IThreadRepository } from '../ports.js';
 
 export class PostCommentUseCase {
   constructor(

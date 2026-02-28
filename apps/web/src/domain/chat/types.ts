@@ -30,3 +30,16 @@ export interface ChatSearchResult {
   title: string;
   createdAt: string;
 }
+
+export type SortDirection = 'asc' | 'desc';
+
+export interface ChatSort {
+  sortBy: string;
+  sortDir: SortDirection;
+}
+
+export interface ChatMessagePage {
+  data: ChatMessage[];
+  limit: number;
+  offset: number;
+}

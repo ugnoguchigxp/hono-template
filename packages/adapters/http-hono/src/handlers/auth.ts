@@ -10,7 +10,7 @@ import {
 } from '@foundation/contracts/api';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
-import { setCookie, getCookie } from 'hono/cookie';
+import { getCookie, setCookie } from 'hono/cookie';
 import type { AppEnv } from '../index.js';
 
 export function createLoginHandler(loginUseCase: LoginUseCase) {

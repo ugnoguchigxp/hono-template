@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ThreadRepository } from './ThreadRepository.js';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CommentRepository } from './CommentRepository.js';
-import { CreateThreadInput, PostCommentInput } from './types.js';
+import { ThreadRepository } from './ThreadRepository.js';
+import type { CreateThreadInput, PostCommentInput } from './types.js';
 
 const threadRepo = new ThreadRepository();
 const commentRepo = new CommentRepository();

@@ -8,7 +8,8 @@
     "rules": {
       "recommended": true,
       "complexity": {
-        "noExcessiveCognitiveComplexity": "off"
+        "noExcessiveCognitiveComplexity": "off",
+        "noStaticOnlyClass": "off"
       },
       "correctness": {
         "noUnusedVariables": "error",
@@ -41,7 +42,7 @@
       "quoteStyle": "single",
       "jsxQuoteStyle": "double",
       "semicolons": "always",
-      "trailingComma": "es5",
+      "trailingCommas": "es5",
       "quoteProperties": "asNeeded"
     }
   },
@@ -57,7 +58,9 @@
       "**/migrations/**",
       "**/.git/**",
       "**/coverage/**",
-      "**/*.test.ts"
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/routeTree.gen.ts"
     ]
   }
 }

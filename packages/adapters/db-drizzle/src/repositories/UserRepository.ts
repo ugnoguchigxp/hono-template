@@ -1,9 +1,9 @@
 import type { IUserRepository } from '@foundation/auth-suite/application';
+import { ExternalAccount } from '@foundation/auth-suite/domain/entities/ExternalAccount.js';
 import { User as UserEntity } from '@foundation/auth-suite/domain/entities/User.js';
 import type { DBClient } from '@foundation/db';
 import { and, eq } from 'drizzle-orm';
-import { users, userExternalAccounts } from '../schema/index.js';
-import { ExternalAccount } from '@foundation/auth-suite/domain/entities/ExternalAccount.js';
+import { userExternalAccounts, users } from '../schema/index.js';
 
 export class DrizzleUserRepository implements IUserRepository {
   constructor(private readonly db: DBClient) {}

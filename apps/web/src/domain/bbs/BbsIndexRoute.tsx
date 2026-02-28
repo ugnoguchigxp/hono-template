@@ -1,10 +1,10 @@
-import { createRoute } from '@tanstack/react-router';
-import { rootRoute } from '../../routes/__root.js';
-import { ThreadList } from './components/ThreadList.js';
-import { ThreadForm } from './components/ThreadForm.js';
 import { Button } from '@gxp/design-system';
+import { createRoute } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
 import React from 'react';
+import { rootRoute } from '../../routes/__root.js';
+import { ThreadForm } from './components/ThreadForm.js';
+import { ThreadList } from './components/ThreadList.js';
 
 export const bbsIndexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -16,15 +16,22 @@ export const bbsIndexRoute = createRoute({
       <div className="space-y-8 animate-in fade-in duration-700">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Community Board</h1>
-            <p className="text-gray-500 mt-2 text-lg">Join the discussion and share your thoughts.</p>
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+              Community Board
+            </h1>
+            <p className="text-gray-500 mt-2 text-lg">
+              Join the discussion and share your thoughts.
+            </p>
           </div>
-          <Button 
+          <Button
             onClick={() => setShowForm(!showForm)}
             className="rounded-full px-6 shadow-lg hover:shadow-xl transition-all"
-            variant={showForm ? "outline" : "default"}
+            variant={showForm ? 'outline' : 'default'}
           >
-            <Plus className={`mr-2 transition-transform duration-300 ${showForm ? 'rotate-45' : ''}`} size={18} />
+            <Plus
+              className={`mr-2 transition-transform duration-300 ${showForm ? 'rotate-45' : ''}`}
+              size={18}
+            />
             {showForm ? 'Cancel' : 'New Thread'}
           </Button>
         </div>

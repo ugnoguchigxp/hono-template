@@ -1,4 +1,4 @@
-import { ThreadId, UserId, Thread as ThreadType } from '../../contracts.js';
+import type { ThreadId, Thread as ThreadType, UserId } from '../../contracts.js';
 
 export class Thread {
   private constructor(private readonly data: ThreadType) {}
@@ -33,6 +33,10 @@ export class Thread {
     });
   }
 
-  get id(): ThreadId { return this.data.id; }
-  get authorId(): UserId { return this.data.authorId; }
+  get id(): ThreadId {
+    return this.data.id;
+  }
+  get authorId(): UserId {
+    return this.data.authorId;
+  }
 }

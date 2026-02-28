@@ -1,15 +1,10 @@
-import * as otplib from 'otplib';
 import { AuthError } from '@foundation/app-core/errors';
+import * as otplib from 'otplib';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import type { User } from '../../domain/index.js';
 import { UserPolicy } from '../../domain/policies/UserPolicy.js';
-import type {
-  IAuditLogger,
-  ISessionStore,
-  ITokenGenerator,
-  IUserRepository,
-} from '../ports.js';
+import type { IAuditLogger, ISessionStore, ITokenGenerator, IUserRepository } from '../ports.js';
 
 export interface VerifyMfaInput {
   userId: string;
@@ -83,7 +78,7 @@ export class VerifyMfaUseCase {
   private async verifyTotp(code: string, secret: string): Promise<boolean> {
     try {
       return otplib.authenticator.check(code, secret);
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

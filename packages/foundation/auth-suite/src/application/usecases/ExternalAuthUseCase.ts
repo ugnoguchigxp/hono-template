@@ -1,15 +1,10 @@
 import { AuthError } from '@foundation/app-core/errors';
+import { ExternalAccount } from '../../domain/entities/ExternalAccount.js';
 import { SessionToken as SessionTokenVO } from '../../domain/entities/Session.js';
 import { Session } from '../../domain/entities/Session.js';
 import { User as UserEntity } from '../../domain/entities/User.js';
-import { ExternalAccount } from '../../domain/entities/ExternalAccount.js';
 import { UserPolicy } from '../../domain/policies/UserPolicy.js';
-import type {
-  IAuditLogger,
-  ISessionStore,
-  ITokenGenerator,
-  IUserRepository,
-} from '../ports.js';
+import type { IAuditLogger, ISessionStore, ITokenGenerator, IUserRepository } from '../ports.js';
 
 export interface ExternalAuthInput {
   provider: string;
@@ -62,7 +57,8 @@ export class ExternalAuthUseCase {
     // 4. Link external account if not already linked
     const linkedAccounts = user.getExternalAccounts();
     const isAlreadyLinked = linkedAccounts.some(
-      (acc) => acc.getData().provider === input.provider && acc.getData().externalId === input.externalId
+      (acc) =>
+        acc.getData().provider === input.provider && acc.getData().externalId === input.externalId
     );
 
     if (!isAlreadyLinked) {

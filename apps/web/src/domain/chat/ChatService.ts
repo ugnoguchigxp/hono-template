@@ -1,12 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChatRepository } from './ChatRepository.js';
+import type { ChatSort } from './types.js';
 
 const repo = new ChatRepository();
 
-export const useChatSessions = (query?: string) => useQuery({
-  queryKey: ['chatSessions', query ?? ''],
-  queryFn: () => repo.listSessions(query),
-});
+export const useChatSessions = (query?: string, sort?: ChatSort) =>
+  useQuery({
+    queryKey: ['chatSessions', query ?? '', sort?.sortBy ?? 'updatedAt', sort?.sortDir ?? 'desc'],
+    queryFn: () => repo.listSessions(query, sort),
+  });
 
 export const useCreateChatSession = () => {
   const queryClient = useQueryClient();
@@ -36,11 +38,23 @@ export const useDeleteChatSession = () => {
   });
 };
 
-export const useChatMessages = (sessionId: string, query?: string) => useQuery({
-  queryKey: ['chatMessages', sessionId, query ?? ''],
-  queryFn: () => repo.listMessages(sessionId, query),
-  enabled: !!sessionId,
-});
+export const useChatMessages = (sessionId: string, query?: string) =>
+  useQuery({
+    queryKey: ['chatMessages', sessionId, query ?? ''],
+    queryFn: async () => (await repo.listMessages(sessionId, query)).data,
+    enabled: !!sessionId,
+  });
+
+export const useInfiniteChatMessages = (sessionId: string, pageSize = 50) =>
+  useInfiniteQuery({
+    queryKey: ['chatMessages', sessionId, 'infinite', pageSize],
+    queryFn: ({ pageParam }) =>
+      repo.listMessages(sessionId, undefined, { limit: pageSize, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.data.length < pageSize ? undefined : lastPage.offset + lastPage.limit,
+    enabled: !!sessionId,
+  });
 
 export const useCreateChatMessage = (sessionId: string) => {
   const queryClient = useQueryClient();
@@ -54,8 +68,9 @@ export const useCreateChatMessage = (sessionId: string) => {
   });
 };
 
-export const useSearchMessages = (q: string) => useQuery({
-  queryKey: ['chatSearch', q],
-  queryFn: () => repo.searchMessages(q),
-  enabled: q.trim().length > 0,
-});
+export const useSearchMessages = (q: string, sort?: ChatSort) =>
+  useQuery({
+    queryKey: ['chatSearch', q, sort?.sortBy ?? 'createdAt', sort?.sortDir ?? 'desc'],
+    queryFn: () => repo.searchMessages(q, sort),
+    enabled: q.trim().length > 0,
+  });

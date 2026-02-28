@@ -1,7 +1,12 @@
-import { eq } from 'drizzle-orm';
-import { comments } from '@foundation/db/schema';
-import { ICommentRepository, CommentEntity, CommentId, ThreadId } from '@domains/bbs';
+import {
+  CommentEntity,
+  type CommentId,
+  type ICommentRepository,
+  type ThreadId,
+} from '@domains/bbs';
 import type { DBClient } from '@foundation/db';
+import { comments } from '@foundation/db/schema';
+import { eq } from 'drizzle-orm';
 
 export class DrizzleCommentRepository implements ICommentRepository {
   constructor(private readonly db: DBClient) {}
@@ -31,7 +36,7 @@ export class DrizzleCommentRepository implements ICommentRepository {
       where: eq(comments.threadId, threadId),
     });
 
-    return results.map(result =>
+    return results.map((result) =>
       CommentEntity.reconstruct({
         id: result.id as CommentId,
         threadId: result.threadId as ThreadId,

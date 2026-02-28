@@ -1,35 +1,26 @@
-import type { Container, Logger } from '@foundation/app-core';
-import type { DBClient } from '@foundation/db';
-import type {
-  LoginUseCase,
-  LogoutUseCase,
-  RegisterUserUseCase,
-  ValidateSessionUseCase,
-  VerifyMfaUseCase,
-  ExternalAuthUseCase,
-} from '@foundation/auth-suite/application';
 import type {
   CreateThreadUseCase,
   GetThreadDetailUseCase,
   ListThreadsUseCase,
   PostCommentUseCase,
 } from '@domains/bbs';
+import type { Container, Logger } from '@foundation/app-core';
+import type {
+  ExternalAuthUseCase,
+  LoginUseCase,
+  LogoutUseCase,
+  RegisterUserUseCase,
+  ValidateSessionUseCase,
+  VerifyMfaUseCase,
+} from '@foundation/auth-suite/application';
+import type { IOAuthClient } from '@foundation/auth-suite/application';
+import type { DBClient } from '@foundation/db';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { poweredBy } from 'hono/powered-by';
 import { prettyJSON } from 'hono/pretty-json';
 import { secureHeaders } from 'hono/secure-headers';
 import { timing } from 'hono/timing';
-import {
-  createHealthCheckHandler,
-  createLoginHandler,
-  createLogoutHandler,
-  createMeHandler,
-  createRegisterHandler,
-  createVerifyMfaHandler,
-  createOAuthLoginHandler,
-  createOAuthCallbackHandler,
-} from './handlers/index.js';
 import {
   createCreateThreadHandler,
   createListThreadsHandler,
@@ -39,20 +30,29 @@ import {
 import {
   createCreateChatMessageHandler,
   createCreateChatSessionHandler,
-  createIngestChatMessageHandler,
   createDeleteChatSessionHandler,
   createGetChatSessionHandler,
+  createIngestChatMessageHandler,
   createListChatMessagesHandler,
   createListChatSessionsHandler,
   createSearchChatMessagesHandler,
   createUpdateChatSessionHandler,
 } from './handlers/chat-sessions.js';
 import {
+  createHealthCheckHandler,
+  createLoginHandler,
+  createLogoutHandler,
+  createMeHandler,
+  createOAuthCallbackHandler,
+  createOAuthLoginHandler,
+  createRegisterHandler,
+  createVerifyMfaHandler,
+} from './handlers/index.js';
+import {
   authMiddleware,
   createZodErrorHandler,
   requestContextMiddleware,
 } from './middleware/index.js';
-import type { IOAuthClient } from '@foundation/auth-suite/application';
 
 export interface HonoAppDependencies {
   container: Container;
@@ -134,13 +134,16 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono<AppEnv> {
   const bbsRoutes = new Hono<AppEnv>();
   bbsRoutes.get('/threads', createListThreadsHandler(dependencies.listThreadsUseCase));
   bbsRoutes.get('/threads/:id', createThreadDetailHandler(dependencies.getThreadDetailUseCase));
-  
+
   // Protected BBS routes
   const protectedBbs = new Hono<AppEnv>();
   protectedBbs.use('*', authMiddleware(dependencies.validateSessionUseCase));
   protectedBbs.post('/threads', createCreateThreadHandler(dependencies.createThreadUseCase));
-  protectedBbs.post('/threads/:id/comments', createPostCommentHandler(dependencies.postCommentUseCase));
-  
+  protectedBbs.post(
+    '/threads/:id/comments',
+    createPostCommentHandler(dependencies.postCommentUseCase)
+  );
+
   bbsRoutes.route('/', protectedBbs);
   apiV1.route('/bbs', bbsRoutes);
 

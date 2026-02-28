@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { IdSchema } from '@foundation/contracts';
+import { z } from 'zod';
 
 // Basic Types
 export const ThreadIdSchema = IdSchema.describe('Unique identifier for a thread');

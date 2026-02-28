@@ -1,4 +1,4 @@
-import { Thread, ThreadDetail, CreateThreadInput, ListThreadsResponse } from './types.js';
+import type { CreateThreadInput, ListThreadsResponse, Thread, ThreadDetail } from './types.js';
 
 const API_BASE_URL = '/api/v1/bbs';
 

@@ -14,8 +14,6 @@ export class DrizzleTransactionManager implements TransactionManager {
   }
 }
 
-export function createTransactionManager(
-  db: PostgresJsDatabase<any>
-): TransactionManager {
+export function createTransactionManager(db: PostgresJsDatabase<any>): TransactionManager {
   return new DrizzleTransactionManager(db);
 }
