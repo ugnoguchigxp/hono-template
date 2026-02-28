@@ -16,6 +16,26 @@ export const useCreateChatSession = () => {
   });
 };
 
+export const useUpdateChatSession = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { sessionId: string; title: string; channel: string }) =>
+      repo.updateSession(input.sessionId, { title: input.title, channel: input.channel }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chatSessions'] }),
+  });
+};
+
+export const useDeleteChatSession = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (sessionId: string) => repo.deleteSession(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chatSessions'] });
+      queryClient.invalidateQueries({ queryKey: ['chatMessages'] });
+    },
+  });
+};
+
 export const useChatMessages = (sessionId: string, query?: string) => useQuery({
   queryKey: ['chatMessages', sessionId, query ?? ''],
   queryFn: () => repo.listMessages(sessionId, query),

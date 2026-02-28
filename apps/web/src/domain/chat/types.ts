@@ -19,3 +19,14 @@ export interface ChatMessage {
   content: string;
   createdAt: string;
 }
+
+export interface ChatSearchResult {
+  messageId: string;
+  sessionId: string;
+  content: string;
+  role: string;
+  sender?: string | null;
+  channel: string;
+  title: string;
+  createdAt: string;
+}

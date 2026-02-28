@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatSession } from './types.js';
+import type { ChatMessage, ChatSearchResult, ChatSession } from './types.js';
 
 const API_BASE_URL = '/api/v1/chat';
 
@@ -22,6 +22,27 @@ export class ChatRepository {
     if (!response.ok) throw new Error('Failed to create session');
     const json = await response.json();
     return json.data;
+  }
+
+  async updateSession(
+    sessionId: string,
+    input: Partial<Pick<ChatSession, 'title' | 'channel' | 'externalSessionId'>>
+  ): Promise<ChatSession> {
+    const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
+    if (!response.ok) throw new Error('Failed to update session');
+    const json = await response.json();
+    return json.data;
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete session');
   }
 
   async listMessages(sessionId: string, query?: string): Promise<ChatMessage[]> {
@@ -48,7 +69,7 @@ export class ChatRepository {
     return json.data;
   }
 
-  async searchMessages(q: string): Promise<Array<ChatMessage & { channel: string; title: string }>> {
+  async searchMessages(q: string): Promise<ChatSearchResult[]> {
     const params = new URLSearchParams({ q });
     const response = await fetch(`${API_BASE_URL}/messages/search?${params.toString()}`);
     if (!response.ok) throw new Error('Failed to search messages');
