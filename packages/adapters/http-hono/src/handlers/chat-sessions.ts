@@ -172,6 +172,59 @@ export const createCreateChatMessageHandler = (db: DBClient): Handler => async (
   return c.json({ data: created }, 201);
 };
 
+export const createIngestChatMessageHandler = (db: DBClient): Handler => async (c) => {
+  const body = await c.req.json();
+
+  if (!body.channel || !body.content) {
+    return c.json({ error: 'channel and content are required' }, 400);
+  }
+
+  const externalSessionId = body.externalSessionId ?? body.channelThreadId ?? null;
+  const title = body.title ?? `${body.channel}:${externalSessionId ?? 'default'}`;
+
+  let session = await db.query.chatSessions.findFirst({
+    where: and(
+      eq(chatSessions.channel, body.channel),
+      externalSessionId ? eq(chatSessions.externalSessionId, externalSessionId) : sql`${chatSessions.externalSessionId} is null`,
+      sql`${chatSessions.deletedAt} is null`
+    ),
+  });
+
+  if (!session) {
+    const [createdSession] = await db
+      .insert(chatSessions)
+      .values({
+        title,
+        channel: body.channel,
+        externalSessionId,
+        participants: Array.isArray(body.participants) ? body.participants : [],
+        tags: Array.isArray(body.tags) ? body.tags : [],
+        metadata: body.sessionMetadata ?? null,
+      })
+      .returning();
+    session = createdSession;
+  }
+
+  const [createdMessage] = await db
+    .insert(chatMessages)
+    .values({
+      sessionId: session.id,
+      role: body.role ?? 'user',
+      channelMessageId: body.channelMessageId ?? null,
+      sender: body.sender ?? null,
+      content: body.content,
+      metadata: body.metadata ?? null,
+    })
+    .returning();
+
+  await db
+    .update(chatSessions)
+    .set({ updatedAt: new Date() })
+    .where(eq(chatSessions.id, session.id));
+
+  return c.json({ data: { session, message: createdMessage } }, 201);
+};
+
 export const createSearchChatMessagesHandler = (db: DBClient): Handler => async (c) => {
   const q = c.req.query('q');
   const channel = c.req.query('channel');

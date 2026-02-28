@@ -39,6 +39,7 @@ import {
 import {
   createCreateChatMessageHandler,
   createCreateChatSessionHandler,
+  createIngestChatMessageHandler,
   createDeleteChatSessionHandler,
   createGetChatSessionHandler,
   createListChatMessagesHandler,
@@ -152,6 +153,7 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono<AppEnv> {
   chatRoutes.delete('/sessions/:id', createDeleteChatSessionHandler(dependencies.dbClient));
   chatRoutes.get('/sessions/:id/messages', createListChatMessagesHandler(dependencies.dbClient));
   chatRoutes.post('/sessions/:id/messages', createCreateChatMessageHandler(dependencies.dbClient));
+  chatRoutes.post('/ingest', createIngestChatMessageHandler(dependencies.dbClient));
   chatRoutes.get('/messages/search', createSearchChatMessagesHandler(dependencies.dbClient));
   apiV1.route('/chat', chatRoutes);
 

@@ -23,24 +23,29 @@ const port = config.get('PORT');
 
 logger.info('API server started', { port });
 
-// Bun environment
-const server = Bun.serve({
-  port,
-  fetch: app.fetch,
-  development: config.isDevelopment,
-});
+if (typeof Bun !== 'undefined') {
+  // Bun environment
+  const server = Bun.serve({
+    port,
+    fetch: app.fetch,
+    development: config.isDevelopment,
+  });
 
-logger.info('Server listening on port', { port: server.port });
+  logger.info('Server listening on port', { port: server.port });
 
-// Handle graceful shutdown
-process.on('SIGINT', () => {
-  logger.info('Received SIGINT, shutting down gracefully');
-  server.stop();
-});
+  process.on('SIGINT', () => {
+    logger.info('Received SIGINT, shutting down gracefully');
+    server.stop();
+  });
 
-process.on('SIGTERM', () => {
-  logger.info('Received SIGTERM, shutting down gracefully');
-  server.stop();
-});
+  process.on('SIGTERM', () => {
+    logger.info('Received SIGTERM, shutting down gracefully');
+    server.stop();
+  });
+} else {
+  const { serve } = await import('@hono/node-server');
+  serve({ fetch: app.fetch, port });
+  logger.info('Server listening on port', { port, runtime: 'node' });
+}
 
 export default app;

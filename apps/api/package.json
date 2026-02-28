@@ -18,6 +18,7 @@
     "@foundation/auth-suite": "workspace:*",
     "@foundation/db": "workspace:*",
     "@foundation/contracts": "workspace:*",
+    "@hono/node-server": "^1.13.7",
     "hono": "^4.0.0"
   },
   "devDependencies": {
