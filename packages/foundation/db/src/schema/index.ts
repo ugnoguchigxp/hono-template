@@ -119,6 +119,38 @@ export const comments = pgTable('comments', {
   createdAtIndex: index('comments_created_at_idx').on(table.createdAt),
 }));
 
+// Cross-channel conversation sessions (webchat/discord/telegram...)
+export const chatSessions = pgTable('chat_sessions', {
+  ...commonColumns,
+  title: text('title').notNull(),
+  channel: text('channel').notNull(),
+  externalSessionId: text('external_session_id'),
+  participants: text('participants').array(),
+  tags: text('tags').array(),
+  metadata: jsonb('metadata'),
+}, (table) => ({
+  channelIndex: index('chat_sessions_channel_idx').on(table.channel),
+  externalSessionIndex: index('chat_sessions_external_session_id_idx').on(table.externalSessionId),
+  createdAtIndex: index('chat_sessions_created_at_idx').on(table.createdAt),
+}));
+
+export const chatMessages = pgTable('chat_messages', {
+  ...commonColumns,
+  sessionId: uuid('session_id')
+    .notNull()
+    .references(() => chatSessions.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(),
+  channelMessageId: text('channel_message_id'),
+  sender: text('sender'),
+  content: text('content').notNull(),
+  metadata: jsonb('metadata'),
+}, (table) => ({
+  sessionIdIndex: index('chat_messages_session_id_idx').on(table.sessionId),
+  roleIndex: index('chat_messages_role_idx').on(table.role),
+  channelMessageIndex: index('chat_messages_channel_message_id_idx').on(table.channelMessageId),
+  createdAtIndex: index('chat_messages_created_at_idx').on(table.createdAt),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
@@ -135,3 +167,7 @@ export type Comment = typeof comments.$inferSelect;
 export type NewComment = typeof comments.$inferInsert;
 export type UserExternalAccount = typeof userExternalAccounts.$inferSelect;
 export type NewUserExternalAccount = typeof userExternalAccounts.$inferInsert;
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type NewChatSession = typeof chatSessions.$inferInsert;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type NewChatMessage = typeof chatMessages.$inferInsert;

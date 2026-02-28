@@ -120,6 +120,7 @@ export function resolveHonoDependencies(container: Container) {
   return {
     container,
     logger,
+    dbClient,
     loginUseCase: new LoginUseCase(
       userRepository,
       sessionStore,

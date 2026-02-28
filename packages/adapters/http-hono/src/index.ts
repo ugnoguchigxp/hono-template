@@ -1,4 +1,5 @@
 import type { Container, Logger } from '@foundation/app-core/types.js';
+import type { DBClient } from '@foundation/db';
 import type {
   LoginUseCase,
   LogoutUseCase,
@@ -36,6 +37,16 @@ import {
   createThreadDetailHandler,
 } from './handlers/bbs.js';
 import {
+  createCreateChatMessageHandler,
+  createCreateChatSessionHandler,
+  createDeleteChatSessionHandler,
+  createGetChatSessionHandler,
+  createListChatMessagesHandler,
+  createListChatSessionsHandler,
+  createSearchChatMessagesHandler,
+  createUpdateChatSessionHandler,
+} from './handlers/chat-sessions.js';
+import {
   authMiddleware,
   createZodErrorHandler,
   requestContextMiddleware,
@@ -45,6 +56,7 @@ import type { IOAuthClient } from '@foundation/auth-suite/application/ports.js';
 export interface HonoAppDependencies {
   container: Container;
   logger: Logger;
+  dbClient: DBClient;
   loginUseCase: LoginUseCase;
   registerUserUseCase: RegisterUserUseCase;
   validateSessionUseCase: ValidateSessionUseCase;
@@ -130,6 +142,18 @@ export function createHonoApp(dependencies: HonoAppDependencies): Hono<AppEnv> {
   
   bbsRoutes.route('/', protectedBbs);
   apiV1.route('/bbs', bbsRoutes);
+
+  // Chat session storage routes
+  const chatRoutes = new Hono<AppEnv>();
+  chatRoutes.get('/sessions', createListChatSessionsHandler(dependencies.dbClient));
+  chatRoutes.post('/sessions', createCreateChatSessionHandler(dependencies.dbClient));
+  chatRoutes.get('/sessions/:id', createGetChatSessionHandler(dependencies.dbClient));
+  chatRoutes.patch('/sessions/:id', createUpdateChatSessionHandler(dependencies.dbClient));
+  chatRoutes.delete('/sessions/:id', createDeleteChatSessionHandler(dependencies.dbClient));
+  chatRoutes.get('/sessions/:id/messages', createListChatMessagesHandler(dependencies.dbClient));
+  chatRoutes.post('/sessions/:id/messages', createCreateChatMessageHandler(dependencies.dbClient));
+  chatRoutes.get('/messages/search', createSearchChatMessagesHandler(dependencies.dbClient));
+  apiV1.route('/chat', chatRoutes);
 
   app.route('/api/v1', apiV1);
 
